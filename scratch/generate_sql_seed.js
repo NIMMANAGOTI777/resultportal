@@ -6,9 +6,11 @@ const classes = ['8', '9', '10'];
 const sections = ['A', 'B'];
 const subjects = [
   { id: 'sub-telugu', name: 'Telugu' },
+  { id: 'sub-hindi', name: 'Hindi' },
   { id: 'sub-english', name: 'English' },
   { id: 'sub-maths', name: 'Mathematics' },
-  { id: 'sub-science', name: 'Science' },
+  { id: 'sub-phy-science', name: 'Physical Science' },
+  { id: 'sub-bio-science', name: 'Biological Science' },
   { id: 'sub-social', name: 'Social Studies' }
 ];
 
@@ -119,9 +121,11 @@ END $$;
 -- 4. Ensure default subjects exist
 INSERT INTO public.subjects (id, subject_name) VALUES
   ('sub-telugu', 'Telugu'),
+  ('sub-hindi', 'Hindi'),
   ('sub-english', 'English'),
   ('sub-maths', 'Mathematics'),
-  ('sub-science', 'Science'),
+  ('sub-phy-science', 'Physical Science'),
+  ('sub-bio-science', 'Biological Science'),
   ('sub-social', 'Social Studies')
 ON CONFLICT (id) DO UPDATE SET subject_name = EXCLUDED.subject_name;
 

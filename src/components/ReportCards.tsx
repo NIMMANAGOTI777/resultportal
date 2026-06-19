@@ -125,187 +125,232 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     const doc = new jsPDF();
     const sc = school;
     
-    // Header banner
-    doc.setFillColor(37, 99, 235); // Primary #2563EB
-    doc.rect(0, 0, 210, 42, 'F');
+    // Page border
+    doc.setDrawColor(37, 99, 235);
+    doc.setLineWidth(0.6);
+    doc.rect(5, 5, 200, 287);
 
-    // School Title
+    // Primary Header block
+    doc.setFillColor(37, 99, 235);
+    doc.rect(6, 6, 198, 34, 'F');
+
+    // Title & Government Board
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(sc.school_name.toUpperCase(), 105, 16, { align: "center" });
+    doc.setFontSize(8);
+    doc.text("GOVERNMENT OF TELANGANA - SCHOOL EDUCATION DEPARTMENT", 105, 12, { align: "center" });
 
-    // School Address & Code
-    doc.setFontSize(9);
+    doc.setFontSize(15);
+    doc.text(sc.school_name.toUpperCase(), 105, 20, { align: "center" });
+
+    doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
-    doc.text(sc.address, 105, 23, { align: "center" });
-    doc.text(`U-DISE School Code: ${sc.school_code}  |  Academic Session: ${sc.academic_year}`, 105, 29, { align: "center" });
-    doc.text(`Government of Telangana School Education Board`, 105, 35, { align: "center" });
+    doc.text(sc.address, 105, 26, { align: "center" });
+    doc.text(`U-DISE School Code: ${sc.school_code}  |  Academic Session: ${sc.academic_year}`, 105, 32, { align: "center" });
 
-    // Report title
-    doc.setTextColor(15, 23, 42); // Secondary #0F172A
-    doc.setFontSize(13);
+    // Official Title
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("OFFICIAL CUMULATIVE MARKS CARD & PROGRESS REPORT", 105, 52, { align: "center" });
+    doc.text("OFFICIAL PROGRESS REGISTER & CUMULATIVE MARKS CARD", 105, 48, { align: "center" });
 
-    // Draw Vector QR Code in the header for verification
+    // QR Verification Stamp box
     const qrX = 175;
-    const qrY = 48;
+    const qrY = 44;
     doc.setDrawColor(15, 23, 42);
-    doc.setLineWidth(0.5);
-    doc.rect(qrX, qrY, 20, 20); // Border
+    doc.setLineWidth(0.4);
+    doc.rect(qrX, qrY, 18, 18);
 
-    // Corner Finder Squares
     doc.setFillColor(15, 23, 42);
-    doc.rect(qrX + 1, qrY + 1, 5, 5, 'F');
-    doc.rect(qrX + 14, qrY + 1, 5, 5, 'F');
-    doc.rect(qrX + 1, qrY + 14, 5, 5, 'F');
-
-    // Inner Corner Cuts
+    doc.rect(qrX + 1, qrY + 1, 4, 4, 'F');
+    doc.rect(qrX + 13, qrY + 1, 4, 4, 'F');
+    doc.rect(qrX + 1, qrY + 13, 4, 4, 'F');
     doc.setFillColor(255, 255, 255);
-    doc.rect(qrX + 2, qrY + 2, 3, 3, 'F');
-    doc.rect(qrX + 15, qrY + 2, 3, 3, 'F');
-    doc.rect(qrX + 2, qrY + 15, 3, 3, 'F');
-
-    // Center dots
+    doc.rect(qrX + 2, qrY + 2, 2, 2, 'F');
+    doc.rect(qrX + 14, qrY + 2, 2, 2, 'F');
+    doc.rect(qrX + 2, qrY + 14, 2, 2, 'F');
     doc.setFillColor(15, 23, 42);
-    doc.rect(qrX + 3, qrY + 3, 1, 1, 'F');
-    doc.rect(qrX + 16, qrY + 3, 1, 1, 'F');
-    doc.rect(qrX + 3, qrY + 16, 1, 1, 'F');
+    doc.rect(qrX + 2.5, qrY + 2.5, 1, 1, 'F');
+    doc.rect(qrX + 14.5, qrY + 2.5, 1, 1, 'F');
+    doc.rect(qrX + 2.5, qrY + 14.5, 1, 1, 'F');
+    // Random dots
+    doc.rect(qrX + 7, qrY + 3, 2, 2, 'F');
+    doc.rect(qrX + 10, qrY + 5, 1, 3, 'F');
+    doc.rect(qrX + 7, qrY + 8, 3, 1, 'F');
+    doc.rect(qrX + 14, qrY + 7, 2, 2, 'F');
+    doc.rect(qrX + 7, qrY + 11, 1, 4, 'F');
+    doc.rect(qrX + 9, qrY + 13, 4, 1, 'F');
+    doc.rect(qrX + 14, qrY + 13, 2, 2, 'F');
 
-    // Simulated QR Code Matrix Data
-    doc.rect(qrX + 8, qrY + 3, 2, 2, 'F');
-    doc.rect(qrX + 11, qrY + 5, 1, 3, 'F');
-    doc.rect(qrX + 8, qrY + 9, 3, 1, 'F');
-    doc.rect(qrX + 15, qrY + 8, 2, 2, 'F');
-    doc.rect(qrX + 14, qrY + 11, 2, 1, 'F');
-    doc.rect(qrX + 8, qrY + 12, 1, 4, 'F');
-    doc.rect(qrX + 10, qrY + 15, 4, 1, 'F');
-    doc.rect(qrX + 15, qrY + 15, 2, 2, 'F');
-
-    // Draw separator line
     doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.8);
-    doc.line(15, 57, 195, 57);
+    doc.setLineWidth(0.6);
+    doc.line(10, 64, 200, 64);
 
-    // Student Details Grid
-    doc.setFontSize(9);
+    // Student Details
+    doc.setFontSize(8.5);
     doc.setTextColor(71, 85, 105);
     doc.setFont("helvetica", "bold");
-    doc.text("Student Name:", 15, 66);
-    doc.text("Roll Number / ID:", 15, 72);
-    doc.text("Class & Section:", 15, 78);
+    doc.text("Student Name:", 10, 71);
+    doc.text("Roll Number / ID:", 10, 76);
+    doc.text("Class & Section:", 10, 81);
+    doc.text("Academic Year:", 10, 86);
 
     doc.setFont("helvetica", "normal");
-    doc.text(summary.studentName, 45, 66);
-    doc.text(summary.rollNumber, 45, 72);
-    doc.text(`Class ${summary.class} - Section ${summary.section}`, 45, 78);
+    doc.setTextColor(15, 23, 42);
+    doc.text(summary.studentName, 38, 71);
+    doc.text(summary.rollNumber, 38, 76);
+    doc.text(`Class ${summary.class} - Section ${summary.section}`, 38, 81);
+    doc.text(sc.academic_year, 38, 86);
 
     doc.setFont("helvetica", "bold");
-    doc.text("Father's Name:", 115, 66);
-    doc.text("Date of Birth:", 115, 72);
-    doc.text("Class Rank:", 115, 78);
+    doc.setTextColor(71, 85, 105);
+    doc.text("Father's Name:", 110, 71);
+    doc.text("Date of Birth:", 110, 76);
+    doc.text("Attendance:", 110, 81);
+    doc.text("Class Rank / Status:", 110, 86);
 
     doc.setFont("helvetica", "normal");
-    doc.text("Parent Name", 145, 66);
-    // Find matching student DOB
+    doc.setTextColor(15, 23, 42);
     const matchStud = students.find(s => s.id === summary.studentId);
-    doc.text(matchStud ? new Date(matchStud.date_of_birth).toLocaleDateString() : '—', 145, 72);
-    doc.text(`#${summary.rank} of Class`, 145, 78);
+    doc.text(matchStud ? (matchStud.father_name || "Parent Name") : "Parent Name", 142, 71);
+    doc.text(matchStud ? new Date(matchStud.date_of_birth).toLocaleDateString() : '—', 142, 76);
+    doc.text(`${summary.attendance.percentage}% (${summary.attendance.presentDays}/${summary.attendance.workingDays} Days)`, 142, 81);
+    doc.text(`#${summary.rank} of Class / ${summary.overallGrade !== 'F' ? 'PASSED' : 'FAILED'}`, 142, 86);
 
-    // Marks table
-    const tableHeaders = [["Subject", "FA1 (50)", "FA2 (50)", "FA3 (50)", "FA4 (50)", "SA1 (100)", "SA2 (100)", "Total", "Grade"]];
-    const tableBody = summary.subjectResults.map(sub => [
-      sub.subjectName,
-      sub.marks.fa1 != null ? sub.marks.fa1 : '-',
-      sub.marks.fa2 != null ? sub.marks.fa2 : '-',
-      sub.marks.fa3 != null ? sub.marks.fa3 : '-',
-      sub.marks.fa4 != null ? sub.marks.fa4 : '-',
-      sub.marks.sa1 != null ? sub.marks.sa1 : '-',
-      sub.marks.sa2 != null ? sub.marks.sa2 : '-',
-      sub.total,
-      sub.grade
-    ]);
+    // Main Marks Register Table
+    const tableHeaders = [["Subject", "FA1 (20)", "FA2 (20)", "FA3 (20)", "FA4 (20)", "FA Tot (80)", "SA1 (100)", "SA2 (100)", "Grand Tot (280)", "Grade", "GP"]];
+    const tableBody = summary.subjectResults.map(sub => {
+      const fa1 = sub.marks.fa1 != null ? sub.marks.fa1 : 0;
+      const fa2 = sub.marks.fa2 != null ? sub.marks.fa2 : 0;
+      const fa3 = sub.marks.fa3 != null ? sub.marks.fa3 : 0;
+      const fa4 = sub.marks.fa4 != null ? sub.marks.fa4 : 0;
+      const faTotal = fa1 + fa2 + fa3 + fa4;
+      const sa1 = sub.marks.sa1 != null ? sub.marks.sa1 : 0;
+      const sa2 = sub.marks.sa2 != null ? sub.marks.sa2 : 0;
+      const total = faTotal + sa1 + sa2;
+      return [
+        sub.subjectName,
+        sub.marks.fa1 != null ? sub.marks.fa1 : '-',
+        sub.marks.fa2 != null ? sub.marks.fa2 : '-',
+        sub.marks.fa3 != null ? sub.marks.fa3 : '-',
+        sub.marks.fa4 != null ? sub.marks.fa4 : '-',
+        faTotal,
+        sub.marks.sa1 != null ? sub.marks.sa1 : '-',
+        sub.marks.sa2 != null ? sub.marks.sa2 : '-',
+        total,
+        sub.grade,
+        sub.gradePoints
+      ];
+    });
 
     (doc as any).autoTable({
       head: tableHeaders,
       body: tableBody,
-      startY: 88,
+      startY: 92,
       theme: 'grid',
-      headStyles: { fillColor: [15, 23, 42], halign: 'center', fontSize: 9 }, // slate-900
-      bodyStyles: { fontSize: 8.5 },
+      headStyles: { fillColor: [37, 99, 235], halign: 'center', fontSize: 8, fontStyle: 'bold' },
+      bodyStyles: { fontSize: 7.5, halign: 'center' },
       columnStyles: {
-        0: { fontStyle: 'bold', width: 38 },
-        1: { halign: 'center' },
-        2: { halign: 'center' },
-        3: { halign: 'center' },
-        4: { halign: 'center' },
-        5: { halign: 'center' },
-        6: { halign: 'center' },
-        7: { halign: 'center', fontStyle: 'bold' },
-        8: { halign: 'center', fontStyle: 'bold' }
+        0: { fontStyle: 'bold', halign: 'left', width: 36 },
+        5: { fontStyle: 'bold', fillColor: [248, 250, 252] },
+        8: { fontStyle: 'bold', fillColor: [240, 246, 255] },
+        9: { fontStyle: 'bold' },
+        10: { fontStyle: 'bold' }
       }
     });
 
-    // Summary Box
-    const finalY = (doc as any).lastAutoTable.finalY + 12;
-    doc.setFillColor(248, 250, 252); // Background #F8FAFC
-    doc.rect(15, finalY, 180, 26, 'F');
+    const finalY = (doc as any).lastAutoTable.finalY + 6;
+
+    // Academic Summary Row (GPA / CGPA / Grade)
+    doc.setFillColor(248, 250, 252);
+    doc.rect(10, finalY, 190, 18, 'F');
     doc.setDrawColor(226, 232, 240);
-    doc.rect(15, finalY, 180, 26, 'S');
+    doc.rect(10, finalY, 190, 18, 'S');
 
     doc.setTextColor(15, 23, 42);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.text(`Total Marks: ${summary.totalMarksObtained} / ${summary.totalMaxMarks}`, 25, finalY + 10);
-    doc.text(`Overall Percentage: ${summary.overallPercentage}%`, 25, finalY + 18);
-    doc.text(`Overall Grade: ${summary.overallGrade}`, 115, finalY + 10);
-    doc.text(`Result Status: ${summary.overallGrade !== 'F' ? 'PASSED' : 'FAILED'}`, 115, finalY + 18);
+    doc.setFontSize(8.5);
+    doc.text(`Total Marks Obtained: ${summary.totalMarksObtained} / ${summary.totalMaxMarks} (${summary.overallPercentage}%)`, 15, finalY + 7);
+    doc.text(`Grade Point Average (GPA): ${summary.gpa.toFixed(2)}`, 15, finalY + 13);
+    doc.text(`Overall Grade: ${summary.overallGrade}`, 120, finalY + 7);
+    doc.text(`Cumulative GPA (CGPA): ${summary.cgpa.toFixed(2)}`, 120, finalY + 13);
 
-    // AI Insights Section
-    const insights = generateAIInsights(summary, 'en');
-    const insightsY = finalY + 36;
-    doc.setFillColor(239, 246, 255); // soft blue background
-    doc.rect(15, insightsY, 180, 42, 'F');
+    // Attendance & Co-curricular tables side by side
+    const secondaryY = finalY + 22;
     
+    // Attendance Table
+    (doc as any).autoTable({
+      head: [["Attendance Record", "Days / %"]],
+      body: [
+        ["Total Working Days", summary.attendance.workingDays],
+        ["Present Days", summary.attendance.presentDays],
+        ["Absent Days", summary.attendance.absentDays],
+        ["Attendance Percentage", `${summary.attendance.percentage}%`]
+      ],
+      startY: secondaryY,
+      margin: { left: 10 },
+      tableWidth: 92,
+      theme: 'grid',
+      headStyles: { fillColor: [15, 23, 42], fontSize: 8, fontStyle: 'bold' },
+      bodyStyles: { fontSize: 7.5 },
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'center' } }
+    });
+
+    // Co-Curricular Grade Table
+    (doc as any).autoTable({
+      head: [["Co-Curricular Domain", "Grade / Rating"]],
+      body: [
+        ["Sports & Games", summary.cocurricular.sports],
+        ["Discipline & Morals", summary.cocurricular.discipline],
+        ["Leadership Qualities", summary.cocurricular.leadership],
+        ["Co-curricular Participation", summary.cocurricular.participation]
+      ],
+      startY: secondaryY,
+      margin: { left: 108 },
+      tableWidth: 92,
+      theme: 'grid',
+      headStyles: { fillColor: [15, 23, 42], fontSize: 8, fontStyle: 'bold' },
+      bodyStyles: { fontSize: 7.5 },
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'center' } }
+    });
+
+    // Teacher Remarks box
+    const remarksY = Math.max((doc as any).lastAutoTable.finalY, secondaryY + 34) + 6;
+    doc.setFillColor(239, 246, 255); // soft blue
+    doc.rect(10, remarksY, 190, 24, 'F');
+    doc.setDrawColor(191, 219, 254);
+    doc.rect(10, remarksY, 190, 24, 'S');
+
     doc.setTextColor(37, 99, 235);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("AI ACADEMIC ASSESSMENT & PERFORMANCE METRICS", 20, insightsY + 8);
-    
     doc.setFontSize(8.5);
-    doc.setTextColor(51, 65, 85);
-    doc.setFont("helvetica", "bold");
-    doc.text("Strengths:", 20, insightsY + 16);
-    doc.setFont("helvetica", "normal");
-    doc.text(insights.strengths, 48, insightsY + 16, { maxWidth: 140 });
+    doc.text("CLASS TEACHER EVALUATION & ACADEMIC REMARKS", 15, remarksY + 5);
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Improvements:", 20, insightsY + 24);
-    doc.setFont("helvetica", "normal");
-    doc.text(insights.improvements, 48, insightsY + 24, { maxWidth: 140 });
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Advice & Tips:", 20, insightsY + 32);
-    doc.setFont("helvetica", "normal");
-    doc.text(insights.advice, 48, insightsY + 32, { maxWidth: 140 });
-
-    // Footer signatures
-    const footerY = 252;
-    doc.setDrawColor(203, 213, 225);
-    doc.line(15, footerY, 70, footerY);
-    doc.line(140, footerY, 195, footerY);
-
-    doc.setFontSize(8.5);
-    doc.setTextColor(100, 116, 139);
-    doc.text("Class Teacher Signature", 42, footerY + 5, { align: "center" });
-    doc.text("HM Signature & Official Stamp", 167, footerY + 5, { align: "center" });
-
-    // Footer brand note
     doc.setFontSize(7.5);
-    doc.text(sc.footer_text, 105, 276, { align: "center", maxWidth: 180 });
+    doc.setTextColor(51, 65, 85);
+    doc.text(`Key Strengths: ${summary.remarks.strengths}`, 15, remarksY + 10);
+    doc.text(`Areas of Improvement: ${summary.remarks.improvements}`, 15, remarksY + 15);
+    doc.text(`HM/Teacher Suggestions: ${summary.remarks.suggestions}`, 15, remarksY + 20);
 
-    doc.save(`${summary.studentName.replace(/\s+/g, '_')}_Report_Card.pdf`);
+    // Parent Acknowledgement & Signatures
+    const signaturesY = remarksY + 38;
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(0.4);
+    doc.line(10, signaturesY, 60, signaturesY);
+    doc.line(80, signaturesY, 130, signaturesY);
+    doc.line(150, signaturesY, 200, signaturesY);
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Parent's Signature", 35, signaturesY + 4, { align: "center" });
+    doc.text("Class Teacher's Signature", 105, signaturesY + 4, { align: "center" });
+    doc.text("HM Signature & Official Stamp", 175, signaturesY + 4, { align: "center" });
+
+    // Official Stamp Branding
+    doc.setFontSize(7);
+    doc.text(sc.footer_text, 105, signaturesY + 12, { align: "center", maxWidth: 170 });
+
+    doc.save(`${summary.studentName.replace(/\s+/g, '_')}_Government_Report_Card.pdf`);
   };
 
   return (

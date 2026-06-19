@@ -84,9 +84,11 @@ const DEFAULT_TEACHERS: User[] = [
 
 const DEFAULT_SUBJECTS: Subject[] = [
   { id: "sub-telugu", subject_name: "Telugu" },
+  { id: "sub-hindi", subject_name: "Hindi" },
   { id: "sub-english", subject_name: "English" },
   { id: "sub-maths", subject_name: "Mathematics" },
-  { id: "sub-science", subject_name: "Science" },
+  { id: "sub-phy-science", subject_name: "Physical Science" },
+  { id: "sub-bio-science", subject_name: "Biological Science" },
   { id: "sub-social", subject_name: "Social Studies" }
 ];
 

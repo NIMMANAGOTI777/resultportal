@@ -5,7 +5,7 @@ import { calculateSubjectTotal, calculateSubjectMaxTotal, getGrade } from '../ut
 import { useTranslation } from '../locales/translations';
 import type { Language } from '../locales/translations';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { TrendingUp, Award, Users, BookOpen, AlertCircle } from 'lucide-react';
+import { TrendingUp, Award, Users, BookOpen, AlertCircle, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface AnalyticsProps {
@@ -64,10 +64,10 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
   // --- CALCULATE ANALYTICS ---
   const totalStudents = filteredStudents.length;
   
-  // Pass vs Fail Counts
+  // Pass vs Fail Counts & Grades Distribution
   let passCount = 0;
   let failCount = 0;
-  const gradeDistribution = { 'A+': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0 };
+  const gradeDistribution = { 'A1': 0, 'A2': 0, 'B1': 0, 'B2': 0, 'C1': 0, 'C2': 0, 'D': 0, 'F': 0 };
 
   filteredStudents.forEach(s => {
     const studentMarks = filteredMarks.filter(m => m.student_id === s.id);
@@ -82,7 +82,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
       const grade = getGrade(pct);
       gradeDistribution[grade as keyof typeof gradeDistribution]++;
       
-      if (pct >= 50) {
+      if (grade !== 'F') {
         passCount++;
       } else {
         failCount++;
@@ -105,6 +105,36 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
     const pct = totalMax === 0 ? 0 : Math.round((totalObt / totalMax) * 100);
     return { name: sub.subject_name, value: pct };
   });
+
+  // FA vs SA Performance Averages
+  const faAverages = subjects.map(sub => {
+    const subMarks = filteredMarks.filter(m => m.subject_id === sub.id);
+    let totalFaObt = 0;
+    let totalFaMax = 0;
+    subMarks.forEach(m => {
+      if (m.fa1 != null) { totalFaObt += m.fa1; totalFaMax += 20; }
+      if (m.fa2 != null) { totalFaObt += m.fa2; totalFaMax += 20; }
+      if (m.fa3 != null) { totalFaObt += m.fa3; totalFaMax += 20; }
+      if (m.fa4 != null) { totalFaObt += m.fa4; totalFaMax += 20; }
+    });
+    return totalFaMax === 0 ? 0 : Math.round((totalFaObt / totalFaMax) * 100);
+  });
+
+  const saAverages = subjects.map(sub => {
+    const subMarks = filteredMarks.filter(m => m.subject_id === sub.id);
+    let totalSaObt = 0;
+    let totalSaMax = 0;
+    subMarks.forEach(m => {
+      if (m.sa1 != null) { totalSaObt += m.sa1; totalSaMax += 100; }
+      if (m.sa2 != null) { totalSaObt += m.sa2; totalSaMax += 100; }
+    });
+    return totalSaMax === 0 ? 0 : Math.round((totalSaObt / totalSaMax) * 100);
+  });
+
+  // Strength and Weakness Analysis
+  const sortedSubjectAverages = [...subjectAverages].sort((a, b) => b.value - a.value);
+  const strongSubject = sortedSubjectAverages[0] || { name: 'N/A', value: 0 };
+  const weakSubject = sortedSubjectAverages[sortedSubjectAverages.length - 1] || { name: 'N/A', value: 0 };
 
   // Unique Classes list
   const classesList = Array.from(new Set(students.map(s => s.class))).sort();
@@ -154,8 +184,30 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
       backgroundColor: 'rgba(37, 99, 235, 0.85)',
       hoverBackgroundColor: '#2563eb',
       borderRadius: 8,
-      barThickness: 24,
+      barThickness: 20,
     }]
+  };
+
+  const favsSaChartData = {
+    labels: subjects.map(s => s.subject_name),
+    datasets: [
+      {
+        label: 'Formative (FA) %',
+        data: faAverages,
+        backgroundColor: 'rgba(34, 197, 94, 0.85)',
+        hoverBackgroundColor: '#22c55e',
+        borderRadius: 6,
+        barThickness: 10,
+      },
+      {
+        label: 'Summative (SA) %',
+        data: saAverages,
+        backgroundColor: 'rgba(37, 99, 235, 0.85)',
+        hoverBackgroundColor: '#2563eb',
+        borderRadius: 6,
+        barThickness: 10,
+      }
+    ]
   };
 
   const classChartData = {
@@ -194,7 +246,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
   };
 
   const passChartData = {
-    labels: ['Passed (>=50%)', 'Failed (<50%)'],
+    labels: ['Passed (GPA >= 4.0)', 'Failed (GPA < 4.0)'],
     datasets: [{
       data: [passCount || 1, failCount || 0],
       backgroundColor: ['#22c55e', '#ef4444'],
@@ -208,12 +260,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
     datasets: [{
       data: Object.values(gradeDistribution),
       backgroundColor: [
-        'rgba(34, 197, 94, 0.8)',  // A+
-        'rgba(16, 185, 129, 0.8)', // A
-        'rgba(59, 130, 246, 0.8)', // B
-        'rgba(234, 179, 8, 0.8)',  // C
-        'rgba(249, 115, 22, 0.8)',  // D
-        'rgba(239, 68, 68, 0.8)'   // F
+        'rgba(16, 185, 129, 0.85)', // A1
+        'rgba(52, 211, 153, 0.85)', // A2
+        'rgba(37, 99, 235, 0.85)',  // B1
+        'rgba(96, 165, 250, 0.85)', // B2
+        'rgba(234, 179, 8, 0.85)',  // C1
+        'rgba(253, 224, 71, 0.85)', // C2
+        'rgba(249, 115, 22, 0.85)', // D
+        'rgba(239, 68, 68, 0.85)'   // F
       ],
       borderRadius: 6,
       barThickness: 20,
@@ -293,73 +347,179 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
       </div>
 
       {resultsPublished > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Subject Performance */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4"
-          >
-            <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Subject Wise Averages (%)</h3>
-            </div>
-            <div className="h-64">
-              <Bar data={subjectChartData} options={barChartOptions} />
-            </div>
-          </motion.div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Subject Performance */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4"
+            >
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Subject Wise Averages (%)</h3>
+              </div>
+              <div className="h-64">
+                <Bar data={subjectChartData} options={barChartOptions} />
+              </div>
+            </motion.div>
 
-          {/* Pass/Fail Doughnut */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4"
-          >
-            <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-              <Award className="h-5 w-5 text-green-600" />
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Pass Ratio Overview</h3>
-            </div>
-            <div className="h-64 flex justify-center items-center relative">
-              <div className="w-44 h-44">
-                <Doughnut data={passChartData} options={doughnutChartOptions} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
-                  <span className="text-2xl font-black text-slate-850">{passRate}%</span>
-                  <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest">Passed</span>
+            {/* Pass/Fail Doughnut */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4"
+            >
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <Award className="h-5 w-5 text-green-600" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Pass Ratio Overview</h3>
+              </div>
+              <div className="h-64 flex justify-center items-center relative">
+                <div className="w-44 h-44">
+                  <Doughnut data={passChartData} options={doughnutChartOptions} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
+                    <span className="text-2xl font-black text-slate-850">{passRate}%</span>
+                    <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest">Passed</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
-          {/* Class Performance */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4"
-          >
-            <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-              <BookOpen className="h-5 w-5 text-indigo-600" />
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Class Wise Averages (%)</h3>
-            </div>
-            <div className="h-64">
-              <Bar data={classChartData} options={barChartOptions} />
-            </div>
-          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* FA vs SA Comparison Double Bar */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4"
+            >
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Formative (FA) vs Summative (SA) Comparison</h3>
+              </div>
+              <div className="h-64">
+                <Bar 
+                  data={favsSaChartData} 
+                  options={{
+                    ...barChartOptions,
+                    plugins: {
+                      ...barChartOptions.plugins,
+                      legend: { display: true, position: 'top', labels: { font: { family: 'Inter', size: 10 } } }
+                    }
+                  }} 
+                />
+              </div>
+            </motion.div>
 
-          {/* Grade Distribution Bar */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }} 
+            {/* Strength and Weakness analysis */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4">
+                  <Award className="h-5 w-5 text-indigo-600" />
+                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Strength & Weakness Analysis</h3>
+                </div>
+
+                <div className="space-y-3.5">
+                  <div className="flex items-center gap-3 bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-600 flex-shrink-0" />
+                    <div>
+                      <span className="block text-[9px] text-slate-400 font-extrabold uppercase">Strongest Subject</span>
+                      <strong className="text-slate-800 text-sm font-black">{strongSubject.name}</strong>
+                      <span className="block text-[10px] text-emerald-700 font-bold">Class Average: {strongSubject.value}%</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-red-50/50 p-3 rounded-2xl border border-red-100">
+                    <XCircle className="h-8 w-8 text-red-500 flex-shrink-0" />
+                    <div>
+                      <span className="block text-[9px] text-slate-400 font-extrabold uppercase">Weakest Subject</span>
+                      <strong className="text-slate-800 text-sm font-black">{weakSubject.name}</strong>
+                      <span className="block text-[10px] text-red-700 font-bold">Class Average: {weakSubject.value}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-slate-400 leading-normal font-semibold pt-4 border-t border-slate-100">
+                💡 <em>Tip: Target remedial classes and worksheets for the weakest subject to lift general performance.</em>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Class Performance */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4"
+            >
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <BookOpen className="h-5 w-5 text-indigo-600" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Class Wise Averages (%)</h3>
+              </div>
+              <div className="h-64">
+                <Bar data={classChartData} options={barChartOptions} />
+              </div>
+            </motion.div>
+
+            {/* Grade Distribution Bar */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4"
+            >
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
+                <Award className="h-5 w-5 text-amber-500" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Grade Spread Analysis</h3>
+              </div>
+              <div className="h-64">
+                <Bar data={gradeChartData} options={{ ...barChartOptions, scales: { ...barChartOptions.scales, y: { ...barChartOptions.scales.y, max: undefined, ticks: { ...barChartOptions.scales.y.ticks, stepSize: 2 } } } }} />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* AI Generated Cohort Insights */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4"
+            className="bg-gradient-to-r from-blue-50/50 to-indigo-50/30 border border-blue-150 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-              <Award className="h-5 w-5 text-amber-500" />
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Grade Spread Analysis</h3>
-            </div>
-            <div className="h-64">
-              <Bar data={gradeChartData} options={{ ...barChartOptions, scales: { ...barChartOptions.scales, y: { ...barChartOptions.scales.y, max: undefined, ticks: { ...barChartOptions.scales.y.ticks, stepSize: 2 } } } }} />
+            <h3 className="font-bold text-blue-900 flex items-center gap-2 text-xs uppercase tracking-widest">
+              <Sparkles className="h-4.5 w-4.5 text-blue-600 animate-pulse-glow" />
+              AI Cohort Performance Analysis & Insights
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs font-semibold">
+              <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-white space-y-1">
+                <span className="text-[9px] font-bold text-green-600 uppercase tracking-widest block">Retention Summary</span>
+                <p className="text-slate-650 leading-relaxed">
+                  {passRate >= 80 
+                    ? "Excellent student retention and understanding across the curriculum. The class shows solid performance." 
+                    : "Moderate pass rate. A focused revision plan for students in borderline C2 and D grades is highly recommended."}
+                </p>
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-white space-y-1">
+                <span className="text-[9px] font-bold text-amber-600 uppercase tracking-widest block">Subject Focus Area</span>
+                <p className="text-slate-650 leading-relaxed">
+                  The subject <strong className="text-slate-900">{weakSubject.name}</strong> has the lowest average percentage ({weakSubject.value}%). We recommend conducting extra remedial quizzes and concept worksheets.
+                </p>
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-white space-y-1">
+                <span className="text-[9px] font-bold text-blue-600 uppercase tracking-widest block">Curricular Guidance</span>
+                <p className="text-slate-650 leading-relaxed">
+                  Students excel in <strong className="text-slate-900">{strongSubject.name}</strong> ({strongSubject.value}% average). Direct their learning enthusiasm toward helping peers and conducting interactive experiments.
+                </p>
+              </div>
             </div>
           </motion.div>
         </div>

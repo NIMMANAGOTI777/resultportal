@@ -224,7 +224,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
         "Roll Number": "701",
         "Student Name": "Sai Madasu",
         "Class": "9",
-        "Subject": "Science",
+        "Subject": "Physical Science",
         "FA1": 42,
         "FA2": 44,
         "FA3": "",
@@ -359,8 +359,8 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
         <ul className="list-disc pl-5 text-xs text-slate-500 space-y-2 leading-relaxed font-semibold">
           <li><strong>Roll Number</strong> & <strong>Student Name</strong> must match existing records, or a new student will be automatically registered in the class list.</li>
           <li><strong>Class</strong> should be a valid class number (e.g. 6, 7, 8, 9, 10).</li>
-          <li><strong>Subject</strong> should be one of the standard subjects: <em>Telugu, English, Mathematics, Science, Social Studies</em>.</li>
-          <li><strong>Formative Assessments (FA1 - FA4)</strong> must be integers between <strong>0 and 50</strong>. Leaving columns blank marks them as pending.</li>
+          <li><strong>Subject</strong> should be one of the standard subjects: <em>Telugu, Hindi, English, Mathematics, Physical Science, Biological Science, Social Studies</em>.</li>
+          <li><strong>Formative Assessments (FA1 - FA4)</strong> must be integers between <strong>0 and 20</strong>. Leaving columns blank marks them as pending.</li>
           <li><strong>Summative Assessments (SA1 - SA2)</strong> must be integers between <strong>0 and 100</strong>.</li>
         </ul>
       </div>
