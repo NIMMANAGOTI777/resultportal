@@ -383,7 +383,7 @@ export const dbService = {
       if (error) throw error;
       
       // Get teacher profile
-      const { data: teacher, error: profileError } = await supabase
+      const { data: teacher } = await supabase
         .from('teachers')
         .select('*')
         .eq('email', email)
