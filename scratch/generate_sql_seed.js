@@ -18,16 +18,29 @@ let sql = `-- Full Supabase Seeding Script
 -- 1. Create pgcrypto extension (if not already enabled)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- 2. Setup Admin User (admin@zphs.edu / Password123)
+-- 2. Ensure default school exists
+INSERT INTO public.schools (id, school_name, school_code, logo_url, address, academic_year, footer_text)
+VALUES (
+  'school-zphs-1',
+  'ZPHS AGAMOTHKUR',
+  '28160200501',
+  'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=200',
+  'Madugulapally Mandal, Nalgonda District, Telangana - 508228',
+  '2025-2026',
+  'Note: Regular attendance and home study are key to academic success. Keep learning!'
+) ON CONFLICT (id) DO UPDATE SET school_name = EXCLUDED.school_name;
+
+-- 3. Setup Admin User (admin@zphs.edu / Password123)
 DO $$
 DECLARE
-  new_user_id UUID;
+  admin_user_id UUID;
+  teacher_user_id UUID;
 BEGIN
   -- Clean up existing data to allow re-runs
-  DELETE FROM auth.users WHERE email = 'admin@zphs.edu';
-  DELETE FROM public.teachers WHERE email = 'admin@zphs.edu';
+  DELETE FROM auth.users WHERE email IN ('admin@zphs.edu', 'teacher@zphs.edu');
+  DELETE FROM public.teachers WHERE email IN ('admin@zphs.edu', 'teacher@zphs.edu');
 
-  -- Insert into auth.users
+  -- Insert admin@zphs.edu into auth.users
   INSERT INTO auth.users (
     id,
     instance_id,
@@ -36,8 +49,10 @@ BEGIN
     email,
     encrypted_password,
     email_confirmed_at,
+    confirmed_at,
     raw_app_meta_data,
     raw_user_meta_data,
+    is_sso_user,
     created_at,
     updated_at
   )
@@ -47,22 +62,61 @@ BEGIN
     'authenticated',
     'authenticated',
     'admin@zphs.edu',
-    crypt('Password123', gen_salt('bf')),
+    crypt('Password123', gen_salt('bf', 10)), -- 10 rounds for GoTrue compatibility
     now(),
+    now(), -- confirmed_at is required by GoTrue
     '{"provider": "email", "providers": ["email"]}',
     '{}',
+    false,
     now(),
     now()
   )
-  RETURNING id INTO new_user_id;
+  RETURNING id INTO admin_user_id;
 
-  -- Insert into public.teachers
+  -- Insert admin@zphs.edu into public.teachers
   INSERT INTO public.teachers (id, email, name, role)
-  VALUES (new_user_id, 'admin@zphs.edu', 'Principal (Admin)', 'admin');
+  VALUES (admin_user_id, 'admin@zphs.edu', 'M. Srinivasa Rao (Principal)', 'admin');
+
+  -- Insert teacher@zphs.edu into auth.users
+  INSERT INTO auth.users (
+    id,
+    instance_id,
+    aud,
+    role,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    confirmed_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    is_sso_user,
+    created_at,
+    updated_at
+  )
+  VALUES (
+    gen_random_uuid(),
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'teacher@zphs.edu',
+    crypt('Password123', gen_salt('bf', 10)),
+    now(),
+    now(),
+    '{"provider": "email", "providers": ["email"]}',
+    '{}',
+    false,
+    now(),
+    now()
+  )
+  RETURNING id INTO teacher_user_id;
+
+  -- Insert teacher@zphs.edu into public.teachers
+  INSERT INTO public.teachers (id, email, name, role)
+  VALUES (teacher_user_id, 'teacher@zphs.edu', 'K. Lalitha (Mathematics Teacher)', 'teacher');
 
 END $$;
 
--- 3. Ensure default subjects exist
+-- 4. Ensure default subjects exist
 INSERT INTO public.subjects (id, subject_name) VALUES
   ('sub-telugu', 'Telugu'),
   ('sub-english', 'English'),
@@ -71,10 +125,10 @@ INSERT INTO public.subjects (id, subject_name) VALUES
   ('sub-social', 'Social Studies')
 ON CONFLICT (id) DO UPDATE SET subject_name = EXCLUDED.subject_name;
 
--- 4. Clean existing seeded students and marks to allow clean slate
+-- 5. Clean existing seeded students and marks to allow clean slate
 DELETE FROM public.students WHERE id LIKE 'stud-seeded-%';
 
--- 5. Seed 20 Students
+-- 6. Seed 20 Students
 `;
 
 // Generate students SQL
@@ -93,7 +147,7 @@ VALUES ('stud-seeded-${rollNumber}', '${rollNumber}', '${name}', '${fatherName}'
 ON CONFLICT (roll_number) DO UPDATE SET student_name = EXCLUDED.student_name;\n`;
 }
 
-sql += `\n-- 6. Seed Marks for all students and subjects\n`;
+sql += `\n-- 7. Seed Marks for all students and subjects\n`;
 
 // Generate marks SQL
 for (let i = 0; i < 20; i++) {
@@ -111,7 +165,7 @@ for (let i = 0; i < 20; i++) {
     sql += `INSERT INTO public.marks (id, student_id, subject_id, fa1, fa2, fa3, fa4, sa1, sa2, updated_at)
 VALUES ('m-seeded-${rollNumber}-${sub.id}', '${studentId}', '${sub.id}', ${fa1}, ${fa2}, ${fa3}, ${fa4}, ${sa1}, ${sa2}, now())
 ON CONFLICT (student_id, subject_id) DO UPDATE SET fa1 = EXCLUDED.fa1, fa2 = EXCLUDED.fa2, fa3 = EXCLUDED.fa3, fa4 = EXCLUDED.fa4, sa1 = EXCLUDED.sa1, sa2 = EXCLUDED.sa2;\n`;
-}
+  }
 }
 
 fs.writeFileSync('c:/Users/ADMIN/OneDrive/goal/Desktop/zphs/scratch/db_seed_full.sql', sql);

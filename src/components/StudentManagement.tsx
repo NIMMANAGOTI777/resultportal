@@ -4,6 +4,7 @@ import type { Student } from '../services/db';
 import { useTranslation } from '../locales/translations';
 import type { Language } from '../locales/translations';
 import { Search, Plus, Edit2, Trash2, X, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface StudentManagementProps {
   language: Language;
@@ -97,7 +98,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
     e.preventDefault();
     setErrorMsg('');
     
-    // Basic validation
     if (!formData.roll_number || !formData.student_name || !formData.father_name || !formData.date_of_birth) {
       setErrorMsg('Please fill in all required fields.');
       return;
@@ -138,7 +138,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
   const uniqueClasses = Array.from(new Set(students.map(s => s.class))).sort();
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-5 gap-4">
@@ -159,14 +159,14 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
       </div>
 
       {successMsg && (
-        <div className="p-4 bg-green-50 border border-green-100 text-green-700 rounded-2xl flex items-center gap-2.5 text-sm font-semibold animate-in slide-in-from-top-2 duration-300">
+        <div className="p-4 bg-green-50 border border-green-100 text-green-700 rounded-2xl flex items-center gap-2.5 text-sm font-semibold">
           <AlertCircle className="h-5 w-5 text-green-600" />
           <span>{successMsg}</span>
         </div>
       )}
 
-      {/* Filter and Search Bar (SaaS Control Bar) */}
-      <div className="bg-white p-4 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col md:flex-row gap-3.5 justify-between">
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-3.5 justify-between">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
           <input
@@ -188,14 +188,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
             {uniqueClasses.map(cls => (
               <option key={cls} value={cls}>{t('class')} {cls}</option>
             ))}
-            {!uniqueClasses.includes('9') && <option value="9">{t('class')} 9</option>}
-            {!uniqueClasses.includes('10') && <option value="10">{t('class')} 10</option>}
           </select>
         </div>
       </div>
 
-      {/* Stripe-style Student Directory Grid */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+      {/* Directory Grid */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
@@ -215,28 +213,28 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   <th className="py-4.5 px-6 text-center">{t('actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
+              <tbody className="divide-y divide-slate-100 text-sm text-slate-650">
                 {filteredStudents.map(student => (
                   <tr key={student.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="py-4.5 px-6 font-bold text-slate-900 tracking-tight">{student.roll_number}</td>
-                    <td className="py-4.5 px-6 font-bold text-slate-900 group-hover:text-primary transition-colors">{student.student_name}</td>
-                    <td className="py-4.5 px-6 font-medium text-slate-500">{student.father_name}</td>
-                    <td className="py-4.5 px-6 font-semibold text-slate-500">
-                      {new Date(student.date_of_birth).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                    <td className="py-4 px-6 font-bold text-slate-900">{student.roll_number}</td>
+                    <td className="py-4 px-6 font-bold text-slate-900 group-hover:text-primary transition-colors">{student.student_name}</td>
+                    <td className="py-4 px-6 font-medium text-slate-450">{student.father_name}</td>
+                    <td className="py-4 px-6 font-semibold text-slate-500">
+                      {new Date(student.date_of_birth).toLocaleDateString()}
                     </td>
-                    <td className="py-4.5 px-6">
-                      <span className="px-2.5 py-1 bg-blue-50/60 text-primary rounded-lg text-xs font-bold border border-blue-100/20">
+                    <td className="py-4 px-6">
+                      <span className="px-2.5 py-0.5 bg-blue-50 text-primary rounded-lg text-xs font-bold border border-blue-100/30">
                         {t('class')} {student.class}
                       </span>
                     </td>
-                    <td className="py-4.5 px-6">
+                    <td className="py-4 px-6">
                       <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded font-black text-xs">
                         {student.section}
                       </span>
                     </td>
-                    <td className="py-4.5 px-6 font-semibold text-slate-500">{student.phone || '—'}</td>
-                    <td className="py-4.5 px-6">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="py-4 px-6 font-semibold text-slate-500">{student.phone || '—'}</td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => handleOpenEditModal(student)}
                           className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-primary rounded-lg transition-custom cursor-pointer"
@@ -246,7 +244,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                         </button>
                         <button
                           onClick={() => handleDelete(student.id)}
-                          className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-650 rounded-lg transition-custom cursor-pointer"
+                          className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-custom cursor-pointer"
                           title={t('delete')}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -261,168 +259,166 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
         ) : (
           <div className="text-center py-16 px-4">
             <p className="text-slate-400 text-sm font-semibold">{t('noStudents')}</p>
-            <p className="text-xs text-slate-400 mt-1">Try clearing filters or add a new student to this class list.</p>
           </div>
         )}
       </div>
 
-      {/* --- ADD / EDIT STUDENT MODAL (Apple SaaS Glassmorphism Form Sheet) --- */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 py-5 bg-white border-b border-slate-100">
-              <div>
-                <h3 className="text-lg font-black text-slate-900 leading-none">
-                  {editingStudent ? t('editStudent') : t('addStudent')}
-                </h3>
-                <span className="text-xs text-slate-400 font-medium mt-1.5 block">
-                  {editingStudent ? 'Update student enrollment profiles' : 'Register a new student in the official registry'}
-                </span>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-xl transition-custom cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Modal Body / Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {errorMsg && (
-                <div className="p-4 bg-red-50 border border-red-100 text-red-700 rounded-2xl flex items-center gap-2.5 text-xs font-semibold">
-                  <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
-                  <span>{errorMsg}</span>
+      {/* --- ADD / EDIT STUDENT MODAL --- */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="bg-white rounded-3xl border border-slate-100 w-full max-w-lg overflow-hidden shadow-2xl"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 leading-none">
+                    {editingStudent ? t('editStudent') : t('addStudent')}
+                  </h3>
+                  <span className="text-xs text-slate-400 font-medium mt-1 block">
+                    Update school database registration records.
+                  </span>
                 </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Roll Number */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('rollNumber')} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.roll_number}
-                    onChange={(e) => setFormData({ ...formData, roll_number: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold transition bg-slate-50/50 focus:bg-white"
-                  />
-                </div>
-
-                {/* Student Name */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('studentName')} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.student_name}
-                    onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold transition bg-slate-50/50 focus:bg-white"
-                  />
-                </div>
-
-                {/* Father Name */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('fatherName')} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.father_name}
-                    onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold transition bg-slate-50/50 focus:bg-white"
-                  />
-                </div>
-
-                {/* DOB */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('dob')} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.date_of_birth}
-                    onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold transition bg-slate-50/50 focus:bg-white"
-                  />
-                </div>
-
-                {/* Class */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('class')}
-                  </label>
-                  <select
-                    value={formData.class}
-                    onChange={(e) => setFormData({ ...formData, class: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/50 focus:bg-white cursor-pointer"
-                  >
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                  </select>
-                </div>
-
-                {/* Section */}
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('section')}
-                  </label>
-                  <select
-                    value={formData.section}
-                    onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/50 focus:bg-white cursor-pointer"
-                  >
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                  </select>
-                </div>
-
-                {/* Phone */}
-                <div className="sm:col-span-2 space-y-1">
-                  <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    {t('phone')}
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="e.g. +91 9876543210"
-                    className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold transition bg-slate-50/50 focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="flex justify-end gap-3 pt-5 border-t border-slate-100 mt-4">
                 <button
-                  type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4.5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition cursor-pointer"
+                  className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-650 rounded-xl transition cursor-pointer"
                 >
-                  {t('cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/10 transition cursor-pointer"
-                >
-                  {t('save')}
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            </form>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {errorMsg && (
+                  <div className="p-4 bg-red-50 border border-red-100 text-red-700 rounded-2xl flex items-center gap-2.5 text-xs font-semibold">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('rollNumber')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.roll_number}
+                      onChange={(e) => setFormData({ ...formData, roll_number: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('studentName')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.student_name}
+                      onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('fatherName')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.father_name}
+                      onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('dob')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.date_of_birth}
+                      onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('class')}
+                    </label>
+                    <select
+                      value={formData.class}
+                      onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/30 cursor-pointer"
+                    >
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('section')}
+                    </label>
+                    <select
+                      value={formData.section}
+                      onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/30 cursor-pointer"
+                    >
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                    </select>
+                  </div>
+
+                  <div className="sm:col-span-2 space-y-1">
+                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                      {t('phone')}
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="e.g. +91 9876543210"
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-5 border-t border-slate-100 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-4.5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition cursor-pointer"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-bold transition cursor-pointer"
+                  >
+                    {t('save')}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

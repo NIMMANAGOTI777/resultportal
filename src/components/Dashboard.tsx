@@ -1,35 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { dbService } from '../services/db';
 import type { Student, Subject, Mark, ActivityLog } from '../services/db';
-import { calculateSubjectTotal, calculateSubjectMaxTotal } from '../utils/calculations';
+import { calculateSubjectTotal, calculateSubjectMaxTotal, getGrade } from '../utils/calculations';
 import { useTranslation } from '../locales/translations';
 import type { Language } from '../locales/translations';
-import { Users, BookOpen, CheckCircle, Award, ListTodo, TrendingUp } from 'lucide-react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement
-} from 'chart.js';
-import { Bar, Doughnut } from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement
-);
+import { Users, BookOpen, CheckCircle, Award, ListTodo, ShieldAlert, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface DashboardProps {
   language: Language;
@@ -66,9 +42,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ language }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex flex-col justify-center items-center h-80 space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <span className="ml-3 text-slate-600">{t('loading')}</span>
+        <span className="text-slate-400 font-medium">{t('loading')}</span>
       </div>
     );
   }
@@ -88,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ language }) => {
   let totalOverallObtained = 0;
   let totalOverallMax = 0;
   
-  // Calculate average percentage of students who have marks
+  // Calculate averages
   students.forEach(s => {
     const studentMarks = marks.filter(m => m.student_id === s.id);
     if (studentMarks.length > 0) {
@@ -101,344 +77,237 @@ export const Dashboard: React.FC<DashboardProps> = ({ language }) => {
   
   const avgPercentage = totalOverallMax === 0 ? 0 : Math.round((totalOverallObtained / totalOverallMax) * 100);
 
-  // --- CHART 1: SUBJECT PERFORMANCE ---
-  // Average percentage per subject
-  const subjectAverages = subjects.map(sub => {
-    const subMarks = marks.filter(m => m.subject_id === sub.id);
-    let totalObt = 0;
-    let totalMax = 0;
-    subMarks.forEach(m => {
-      totalObt += calculateSubjectTotal(m);
-      totalMax += calculateSubjectMaxTotal(m);
-    });
-    const pct = totalMax === 0 ? 0 : Math.round((totalObt / totalMax) * 100);
-    return { name: sub.subject_name, value: pct };
-  });
-
-  const subjectChartData = {
-    labels: subjectAverages.map(s => {
-      if (language === 'te') {
-        const lower = s.name.toLowerCase();
-        if (lower.includes('telugu')) return 'తెలుగు';
-        if (lower.includes('english')) return 'ఇంగ్లీష్';
-        if (lower.includes('math')) return 'గణితం';
-        if (lower.includes('science')) return 'సైన్స్';
-        if (lower.includes('social')) return 'సాంఘిక';
-      }
-      return s.name;
-    }),
-    datasets: [
-      {
-        label: t('subjectPerformance'),
-        data: subjectAverages.map(s => s.value),
-        backgroundColor: '#2563EB',
-        hoverBackgroundColor: '#1D4ED8',
-        borderRadius: 6,
-        barThickness: 20,
-      },
-    ],
-  };
-
-  // --- CHART 2: CLASS PERFORMANCE ---
-  // Average percentage per class
-  const classAverages = uniqueClasses.map(cls => {
-    const studentsInClass = students.filter(s => s.class === cls);
-    let totalObt = 0;
-    let totalMax = 0;
-
-    studentsInClass.forEach(s => {
-      const studentMarks = marks.filter(m => m.student_id === s.id);
-      studentMarks.forEach(m => {
-        totalObt += calculateSubjectTotal(m);
-        totalMax += calculateSubjectMaxTotal(m);
-      });
-    });
-
-    const pct = totalMax === 0 ? 0 : Math.round((totalObt / totalMax) * 100);
-    return { className: cls, value: pct };
-  });
-
-  const classChartData = {
-    labels: classAverages.map(c => `${t('class')} ${c.className}`),
-    datasets: [
-      {
-        label: t('classPerformance'),
-        data: classAverages.map(c => c.value),
-        backgroundColor: '#4F46E5',
-        hoverBackgroundColor: '#4338CA',
-        borderRadius: 6,
-        barThickness: 24,
-      },
-    ],
-  };
-
-  // --- CHART 3: PASS PERCENTAGE ---
-  let passCount = 0;
-  let failCount = 0;
-
-  students.forEach(s => {
+  // --- 1. DYNAMIC TOP PERFORMERS (Highest overall average %) ---
+  const studentRankList = students.map(s => {
     const studentMarks = marks.filter(m => m.student_id === s.id);
-    if (studentMarks.length > 0) {
-      let obtained = 0;
-      let max = 0;
-      studentMarks.forEach(m => {
-        obtained += calculateSubjectTotal(m);
-        max += calculateSubjectMaxTotal(m);
-      });
-      const pct = max === 0 ? 0 : (obtained / max) * 100;
-      if (pct >= 50) {
-        passCount++;
-      } else {
-        failCount++;
-      }
-    }
+    let obt = 0;
+    let max = 0;
+    studentMarks.forEach(m => {
+      obt += calculateSubjectTotal(m);
+      max += calculateSubjectMaxTotal(m);
+    });
+    const percentage = max === 0 ? 0 : Math.round((obt / max) * 100);
+    return {
+      name: s.student_name,
+      class: s.class,
+      section: s.section,
+      percentage,
+      grade: getGrade(percentage)
+    };
+  })
+  .filter(item => item.percentage > 0)
+  .sort((a, b) => b.percentage - a.percentage)
+  .slice(0, 3); // top 3
+
+  // --- 2. DYNAMIC PENDING RESULTS ---
+  const pendingStudents = students.filter(s => {
+    const studentMarks = marks.filter(m => m.student_id === s.id);
+    return studentMarks.length < subjects.length; // has missing subjects
   });
 
-  const passChartData = {
-    labels: language === 'en' ? ['Passed (>=50%)', 'Failed (<50%)'] : ['ఉత్తీర్ణత (>=50%)', 'అనుత్తీర్ణత (<50%)'],
-    datasets: [
-      {
-        data: [passCount || 1, failCount || 0],
-        backgroundColor: ['#10B981', '#EF4444'],
-        hoverBackgroundColor: ['#059669', '#DC2626'],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  // --- Chart.js Premium Customizations ---
-  const barChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#0F172A',
-        titleFont: { family: 'Inter', size: 12, weight: 'bold' as const },
-        bodyFont: { family: 'Inter', size: 12 },
-        padding: 12,
-        cornerRadius: 12,
-        boxPadding: 6,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-      }
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: {
-          font: { family: 'Inter', size: 11, weight: 'normal' as const },
-          color: '#64748B'
-        }
-      },
-      y: {
-        min: 0,
-        max: 100,
-        grid: { color: '#F1F5F9' },
-        ticks: {
-          font: { family: 'Inter', size: 11 },
-          color: '#64748B',
-          stepSize: 25
-        }
+  // Container motion presets
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
       }
     }
   };
 
-  const doughnutChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom' as const,
-        labels: {
-          boxWidth: 8,
-          boxHeight: 8,
-          usePointStyle: true,
-          pointStyle: 'circle',
-          font: { family: 'Inter', size: 11, weight: 'normal' as const },
-          color: '#64748B',
-          padding: 16
-        }
-      },
-      tooltip: {
-        backgroundColor: '#0F172A',
-        titleFont: { family: 'Inter', size: 12, weight: 'bold' as const },
-        bodyFont: { family: 'Inter', size: 12 },
-        padding: 12,
-        cornerRadius: 12,
-        boxPadding: 6,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-      }
-    },
-    cutout: '72%'
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100 } }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8">
       
-      {/* Header section */}
+      {/* Welcome Banner */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-5 gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">{t('dashboard')}</h1>
-          <p className="text-sm text-slate-400 font-medium">{t('subTitle')}</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            Welcome back, Teacher 👋
+          </h1>
+          <p className="text-sm text-slate-400 font-medium">ZPHS Agamothkur Academic Portal Dashboard</p>
         </div>
       </div>
 
-      {/* --- CARDS (Premium Double Shadow & Hover lifts) --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* KPI Stats Cards */}
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+      >
         {/* Card 1: Total Students */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group">
+        <motion.div 
+          variants={itemVariants}
+          className="bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-slate-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group cursor-pointer"
+        >
           <div className="space-y-1.5">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{t('totalStudents')}</p>
-            <h3 className="text-3xl font-black text-slate-950 tracking-tight leading-none">{totalStudents}</h3>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{totalStudents}</h3>
           </div>
-          <div className="p-3.5 rounded-2xl bg-blue-50/70 text-primary group-hover:scale-105 transition-transform duration-300 border border-blue-100/50 shadow-sm flex-shrink-0">
+          <div className="p-3 bg-blue-50 text-primary rounded-2xl group-hover:scale-105 transition-transform duration-300">
             <Users className="h-5 w-5" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2: Total Classes */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group">
+        <motion.div 
+          variants={itemVariants}
+          className="bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-slate-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group cursor-pointer"
+        >
           <div className="space-y-1.5">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{t('totalClasses')}</p>
-            <h3 className="text-3xl font-black text-slate-955 tracking-tight leading-none">{totalClasses}</h3>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{totalClasses}</h3>
           </div>
-          <div className="p-3.5 rounded-2xl bg-indigo-50/70 text-indigo-600 group-hover:scale-105 transition-transform duration-300 border border-indigo-100/50 shadow-sm flex-shrink-0">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-105 transition-transform duration-300">
             <BookOpen className="h-5 w-5" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 3: Results Published */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group">
+        <motion.div 
+          variants={itemVariants}
+          className="bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-slate-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group cursor-pointer"
+        >
           <div className="space-y-1.5">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{t('resultsPublished')}</p>
-            <h3 className="text-3xl font-black text-slate-950 tracking-tight leading-none">
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
               {resultsPublished} <span className="text-xs font-semibold text-slate-400">/ {totalStudents}</span>
             </h3>
           </div>
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 text-emerald-600 group-hover:scale-105 transition-transform duration-300 border border-emerald-100/50 shadow-sm flex-shrink-0">
+          <div className="p-3 bg-green-50 text-green-600 rounded-2xl group-hover:scale-105 transition-transform duration-300">
             <CheckCircle className="h-5 w-5" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 4: Average Percentage */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group">
+        <motion.div 
+          variants={itemVariants}
+          className="bg-white/70 backdrop-blur-md p-6 rounded-3xl border border-slate-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between group cursor-pointer"
+        >
           <div className="space-y-1.5">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{t('avgPercentage')}</p>
-            <h3 className="text-3xl font-black text-slate-955 tracking-tight leading-none">{avgPercentage}%</h3>
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{avgPercentage}%</h3>
           </div>
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 text-amber-600 group-hover:scale-105 transition-transform duration-300 border border-amber-100/50 shadow-sm flex-shrink-0">
+          <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-105 transition-transform duration-300">
             <Award className="h-5 w-5" />
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* --- CHARTS & ACTIVITY SECTION (2-Column Grid) --- */}
+      {/* Modern Dashboard Widgets (2-Column Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Chart 1: Subject Performance */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 lg:col-span-2 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-            <div className="p-1.5 bg-blue-50 text-primary rounded-lg">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              {t('subjectPerformance')} (%)
-            </h3>
+        {/* Top Performers Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/75 backdrop-blur-sm p-6 rounded-3xl border border-slate-200/50 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-300 flex flex-col justify-between"
+        >
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <Sparkles className="h-4.5 w-4.5 text-amber-500" />
+            <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Top Performers</h3>
           </div>
-          <div className="h-64 flex justify-center">
-            {subjectAverages.length > 0 ? (
-              <Bar data={subjectChartData} options={barChartOptions} />
-            ) : (
-              <div className="text-slate-400 text-sm flex items-center">{t('noData')}</div>
-            )}
-          </div>
-        </div>
 
-        {/* Chart 2: Pass vs Fail Doughnut */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
-              <CheckCircle className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              {t('passPercentage')}
-            </h3>
-          </div>
-          <div className="h-64 flex justify-center items-center relative">
-            {resultsPublished > 0 ? (
-              <div className="w-48 h-48 relative">
-                <Doughnut data={passChartData} options={doughnutChartOptions} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-[-10px]">
-                  <span className="text-3xl font-black text-slate-900">
-                    {Math.round((passCount / (resultsPublished || 1)) * 100)}%
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-0.5">
-                    {t('passRate') || 'Pass Rate'}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="text-slate-400 text-sm">{t('noActivity') || 'No results published'}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Chart 3: Class Performance */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 lg:col-span-2 space-y-4">
-          <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-            <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-              <BookOpen className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              {t('classPerformance')} (%)
-            </h3>
-          </div>
-          <div className="h-64 flex justify-center">
-            {classAverages.length > 0 ? (
-              <Bar data={classChartData} options={{ ...barChartOptions, plugins: { ...barChartOptions.plugins, legend: { display: false } } }} />
-            ) : (
-              <div className="text-slate-400 text-sm flex items-center">{t('noData')}</div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Activity (SaaS Timeline Design) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_20px_-5px_rgba(0,0,0,0.02)] border border-slate-100 space-y-4 flex flex-col">
-          <div className="flex items-center gap-2 border-b border-slate-50 pb-3">
-            <div className="p-1.5 bg-slate-50 text-slate-500 rounded-lg">
-              <ListTodo className="h-4 w-4" />
-            </div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-              {t('recentActivity')}
-            </h3>
-          </div>
-          
-          <div className="flex-1 min-h-[200px] max-h-[250px] overflow-y-auto pr-1">
-            {activities.length > 0 ? (
-              <div className="relative pl-5.5 space-y-5.5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-                {activities.map(act => (
-                  <div key={act.id} className="relative group">
-                    {/* Glowing Node Circle */}
-                    <span className="absolute -left-[20px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-blue-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></span>
-                    <div className="space-y-0.5">
-                      <p className="text-xs sm:text-sm text-slate-800 font-semibold leading-snug">{act.text}</p>
-                      <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest block">
-                        {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(act.timestamp).toLocaleDateString()}
-                      </span>
+          <div className="flex-1 space-y-3.5 py-2">
+            {studentRankList.length > 0 ? (
+              studentRankList.map((ranker, i) => (
+                <div key={i} className="flex items-center justify-between bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                  <div className="flex items-center space-x-3">
+                    <span className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 text-xs font-black flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800">{ranker.name}</h4>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Class {ranker.class} - {ranker.section}</p>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-slate-850 block">{ranker.percentage}%</span>
+                    <span className="text-[9px] font-extrabold text-amber-600 bg-amber-50 border border-amber-100 rounded px-1">{ranker.grade}</span>
+                  </div>
+                </div>
+              ))
             ) : (
-              <div className="h-full flex flex-col items-center justify-center py-8 text-center">
-                <ListTodo className="h-8 w-8 text-slate-300 mb-2 stroke-1" />
-                <p className="text-xs text-slate-400 font-medium">{t('noActivity')}</p>
+              <div className="h-full flex items-center justify-center py-10 text-slate-400 text-xs">
+                No marks data available
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
+
+        {/* Pending Results Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/75 backdrop-blur-sm p-6 rounded-3xl border border-slate-200/50 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-300 flex flex-col justify-between"
+        >
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <ShieldAlert className="h-4.5 w-4.5 text-red-500" />
+            <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Pending Results</h3>
+          </div>
+
+          <div className="flex-1 space-y-3.5 py-2">
+            <div className="flex items-center justify-between p-3.5 bg-red-50/50 rounded-2xl border border-red-100 text-xs text-red-800">
+              <span className="font-bold">Missing Marks Profiles:</span>
+              <span className="font-black text-sm bg-red-100 px-2 py-0.5 rounded-lg">{pendingStudents.length} Students</span>
+            </div>
+            
+            <div className="max-h-24 overflow-y-auto pr-1 space-y-1.5 text-xs text-slate-500 font-semibold">
+              {pendingStudents.length > 0 ? (
+                pendingStudents.slice(0, 4).map((stud, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-1 border-b border-slate-100">
+                    <span className="truncate">{stud.student_name}</span>
+                    <span className="text-[9px] bg-slate-100 rounded px-1 font-bold">Roll {stud.roll_number}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-[10px] text-green-600 font-bold py-6">
+                  🎉 All student marks cards are fully complete!
+                </div>
+              )}
+              {pendingStudents.length > 4 && (
+                <p className="text-center text-[9px] text-slate-400 font-bold">and {pendingStudents.length - 4} others</p>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Recent Activity Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/75 backdrop-blur-sm p-6 rounded-3xl border border-slate-200/50 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-300 flex flex-col justify-between"
+        >
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <ListTodo className="h-4.5 w-4.5 text-slate-500" />
+            <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">System Audit Trail</h3>
+          </div>
+
+          <div className="flex-1 min-h-[120px] max-h-[160px] overflow-y-auto pr-1 space-y-3.5 py-1">
+            {activities.length > 0 ? (
+              activities.map(act => (
+                <div key={act.id} className="text-xs space-y-0.5 leading-snug">
+                  <p className="font-bold text-slate-700">{act.text}</p>
+                  <span className="text-[9px] text-slate-400 font-bold">
+                    {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(act.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center py-6 text-center text-slate-400 text-xs">
+                No recent activity logs
+              </div>
+            )}
+          </div>
+        </motion.div>
 
       </div>
     </div>
