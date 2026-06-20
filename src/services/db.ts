@@ -1,25 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Read env variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-// If env vars are missing (e.g., Vercel build env), fallback to hardcoded credentials for this project
-if (!supabaseUrl) {
-  // hardcoded URL from .env.production
-  // Note: In production, consider using Vercel env variables instead of hardcoding
-  // This ensures the Supabase client is initialized correctly.
-  // Replace with your actual Supabase project URL.
-  // eslint-disable-next-line no-var
-  var supabaseUrlFallback = 'https://wvwuibrrpmltahqotjfc.supabase.co';
-  // eslint-disable-next-line no-var
-  var supabaseAnonKeyFallback = 'sb_publishable_nPNFUylGbYhgu13U40SnIA_hnxB98be';
-}
-
-// Determine if we should use Supabase or fallback
-export const isSupabaseConfigured = (supabaseUrl || supabaseUrlFallback) && (supabaseAnonKey || supabaseAnonKeyFallback);
-export const supabase = isSupabaseConfigured ? createClient(supabaseUrl || supabaseUrlFallback, supabaseAnonKey || supabaseAnonKeyFallback) : null;
-
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://wvwuibrrpmltahqotjfc.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_nPNFUylGbYhgu13U40SnIA_hnxB98be';
+export const isSupabaseConfigured = !!supabaseUrl && !!supabaseKey;
+export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseKey) : null;
 console.log(isSupabaseConfigured ? "Supabase client initialized" : "Using localStorage mock database fallback");
 
 // TypeScript Types
