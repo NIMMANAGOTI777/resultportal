@@ -76,7 +76,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     const studentWithMarksObj = {
       studentId: student.id,
       studentName: student.student_name,
-      rollNumber: student.admission_number,
+      admissionNumber: student.admission_number,
       class: student.class,
       section: student.section,
       subjects: studentMarks
@@ -92,7 +92,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       return {
         studentId: cs.id,
         studentName: cs.student_name,
-        rollNumber: cs.admission_number,
+        admissionNumber: cs.admission_number,
         class: cs.class,
         section: cs.section,
         subjects: csMarks
@@ -107,7 +107,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
 
   const filteredSummaries = studentSummaries.filter(summary => 
     summary.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    summary.rollNumber.includes(searchQuery)
+    summary.admissionNumber.includes(searchQuery)
   );
 
   const uniqueClasses = Array.from(new Set(students.map(s => s.class))).sort();
@@ -191,14 +191,14 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     doc.setTextColor(71, 85, 105);
     doc.setFont("helvetica", "bold");
     doc.text("Student Name:", 10, 71);
-    doc.text("Roll Number / ID:", 10, 76);
+    doc.text("Admission Number / ID:", 10, 76);
     doc.text("Class & Section:", 10, 81);
     doc.text("Academic Year:", 10, 86);
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(15, 23, 42);
     doc.text(summary.studentName, 38, 71);
-    doc.text(summary.rollNumber, 38, 76);
+    doc.text(summary.admissionNumber, 38, 76);
     doc.text(`Class ${summary.class} - Section ${summary.section}`, 38, 81);
     doc.text(sc.academic_year, 38, 86);
 
@@ -408,7 +408,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                   <th className="py-4.5 px-6">Rank</th>
-                  <th className="py-4.5 px-6">Roll Number</th>
+                  <th className="py-4.5 px-6">Admission Number</th>
                   <th className="py-4.5 px-6">Student Name</th>
                   <th className="py-4.5 px-6 text-center">Score</th>
                   <th className="py-4.5 px-6 text-center">Percentage</th>
@@ -432,7 +432,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
                           {summary.rank}
                         </span>
                       </td>
-                      <td className="py-4 px-6 font-bold text-slate-900">{summary.rollNumber}</td>
+                      <td className="py-4 px-6 font-bold text-slate-900">{summary.admissionNumber}</td>
                       <td className="py-4 px-6 font-bold text-slate-900 group-hover:text-primary transition-colors">{summary.studentName}</td>
                       <td className="py-4 px-6 text-center font-bold text-slate-700">{summary.totalMarksObtained} <span className="text-[10px] font-medium text-slate-400">/{summary.totalMaxMarks}</span></td>
                       <td className="py-4 px-6 text-center font-black text-slate-700">{summary.overallPercentage}%</td>
@@ -527,7 +527,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
                     <div className="space-y-1">
                       <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">{selectedStudentSummary.studentName}</h2>
                       <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-slate-500 text-xs font-semibold">
-                        <span>Roll: <strong className="text-slate-800">{selectedStudentSummary.rollNumber}</strong></span>
+                        <span>Admission Number: <strong className="text-slate-800">{selectedStudentSummary.admissionNumber}</strong></span>
                         <span>Class: <strong className="text-slate-800">{selectedStudentSummary.class} - {selectedStudentSummary.section}</strong></span>
                         <span>Rank: <strong className="text-primary">#{selectedStudentSummary.rank}</strong></span>
                       </div>

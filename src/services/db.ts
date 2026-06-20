@@ -389,6 +389,24 @@ export const dbService = {
     }
   },
 
+  async findStudentByAdmission(admissionNumber: string): Promise<Student | null> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('admission_number', admissionNumber)
+        .maybeSingle();
+      if (error) {
+        console.error('Error fetching student by admission:', error);
+        return null;
+      }
+      return data || null;
+    } else {
+      const students = await this.getStudents();
+      return students.find(s => s.admission_number === admissionNumber) || null;
+    }
+  },
+
   async addStudent(student: Omit<Student, 'id' | 'school_id'>): Promise<Student> {
     const school = await this.getSchoolSettings();
     if (isSupabaseConfigured && supabase) {

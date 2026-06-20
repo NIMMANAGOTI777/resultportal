@@ -65,13 +65,13 @@ interface PublicResultPortalProps {
 
 export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language }) => {
   const { t } = useTranslation(language);
-  const [rollNumber, setRollNumber] = useState('');
-  const [dob, setDob] = useState('');
+  const [admissionNumber, setAdmissionNumber] = useState('');
   const [school, setSchool] = useState<School | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [searched, setSearched] = useState(false);
+  const [dob, setDob] = useState('');
   const [result, setResult] = useState<StudentResultSummary | null>(null);
 
   // Expanded subject card states
@@ -136,16 +136,14 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
     loadSchoolAndStats();
 
     const params = new URLSearchParams(window.location.search);
-    const urlRoll = params.get('roll');
-    const urlDob = params.get('dob');
-    if (urlRoll && urlDob) {
-      setRollNumber(urlRoll);
-      setDob(urlDob);
-      handleSearchDirect(urlRoll, urlDob);
+    const urlAdmission = params.get('admission');
+    if (urlAdmission) {
+      setAdmissionNumber(urlAdmission);
+      handleSearchDirect(urlAdmission);
     }
   }, []);
 
-  const handleSearchDirect = async (r: string, d: string) => {
+  const handleSearchDirect = async (admissionNum: string) => {
     setLoading(true);
     setErrorMsg('');
     setSearched(true);
@@ -157,22 +155,80 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
       await new Promise(resolve => setTimeout(resolve, 500));
       setLoadingStep(2);
       
-      // Step 2: Querying
-      const lookup = await dbService.findStudentWithMarks(r, d);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (lookup) {
-        setLoadingStep(3);
-        const summary = calculateStudentSummary(lookup.currentWithMarks, lookup.classStudents);
-        
-        // Step 3: AI Synthesis
+      // Step 2: Querying student by admission number
+      const student = await dbService.findStudentByAdmission(admissionNum);
+      const allMarks = await dbService.getAllMarks();
+      const subjects = await dbService.getSubjects();
+
+      if (student) {
+        // Build marks map for the current student
+        const studentMarksMap: { [subjectName: string]: any } = {};
+        subjects.forEach(sub => {
+          studentMarksMap[sub.subject_name] = { fa1: null, fa2: null, fa3: null, fa4: null, sa1: null, sa2: null };
+        });
+        const studentMarksList = allMarks.filter(m => m.student_id === student.id);
+        studentMarksList.forEach(m => {
+          const sub = subjects.find(s => s.id === m.subject_id);
+          if (sub) {
+            studentMarksMap[sub.subject_name] = {
+              fa1: m.fa1,
+              fa2: m.fa2,
+              fa3: m.fa3,
+              fa4: m.fa4,
+              sa1: m.sa1,
+              sa2: m.sa2
+            };
+          }
+        });
+        // Build class students with marks for ranking
+        const students = await dbService.getStudents();
+        const classStudents = students.filter(s => s.class === student.class);
+        const classStudentsWithMarks: any[] = [];
+        for (const cs of classStudents) {
+          const csMarksMap: { [subjectName: string]: any } = {};
+          subjects.forEach(sub => {
+            csMarksMap[sub.subject_name] = { fa1: null, fa2: null, fa3: null, fa4: null, sa1: null, sa2: null };
+          });
+          const csMarksList = allMarks.filter(m => m.student_id === cs.id);
+          csMarksList.forEach(m => {
+            const sub = subjects.find(s => s.id === m.subject_id);
+            if (sub) {
+              csMarksMap[sub.subject_name] = {
+                fa1: m.fa1,
+                fa2: m.fa2,
+                fa3: m.fa3,
+                fa4: m.fa4,
+                sa1: m.sa1,
+                sa2: m.sa2
+              };
+            }
+          });
+          classStudentsWithMarks.push({
+            studentId: cs.id,
+            studentName: cs.student_name,
+            admissionNumber: cs.admission_number,
+            class: cs.class,
+            section: cs.section,
+            subjects: csMarksMap
+          });
+        }
+        const currentWithMarks = {
+          studentId: student.id,
+          studentName: student.student_name,
+          admissionNumber: student.admission_number,
+          class: student.class,
+          section: student.section,
+          subjects: studentMarksMap
+        };
+        // Step 3: AI Synthesis (simulated)
         await new Promise(resolve => setTimeout(resolve, 500));
-        setLoadingStep(4);
+        setLoadingStep(3);
+        const summary = calculateStudentSummary(currentWithMarks, classStudentsWithMarks);
         await new Promise(resolve => setTimeout(resolve, 400));
-        
+        setLoadingStep(4);
         setResult(summary);
       } else {
-        setErrorMsg(t('searchError') || "Student not found. Please verify the Roll Number and Date of Birth.");
+        setErrorMsg(t('searchError') || "Student not found. Please verify the Admission Number.");
         setSearched(false);
       }
     } catch (err) {
@@ -187,16 +243,15 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rollNumber || !dob) {
-      setErrorMsg("Please enter both Roll Number and Date of Birth.");
+    if (!admissionNumber) {
+      setErrorMsg("Please enter the Admission Number.");
       return;
     }
-    handleSearchDirect(rollNumber, dob);
+    handleSearchDirect(admissionNumber);
   };
 
   const handleReset = () => {
-    setRollNumber('');
-    setDob('');
+    setAdmissionNumber('');
     setSearched(false);
     setResult(null);
     setErrorMsg('');
@@ -285,14 +340,14 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
     doc.setTextColor(71, 85, 105);
     doc.setFont("helvetica", "bold");
     doc.text("Student Name:", 10, 71);
-    doc.text("Roll Number / ID:", 10, 76);
+    doc.text(t('admissionNumber') + ':', 10, 76);
     doc.text("Class & Section:", 10, 81);
     doc.text("Academic Year:", 10, 86);
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(15, 23, 42);
     doc.text(result.studentName, 38, 71);
-    doc.text(result.rollNumber, 38, 76);
+    doc.text(result.admissionNumber, 38, 76);
     doc.text(`Class ${result.class} - Section ${result.section}`, 38, 81);
     doc.text(sc.academic_year, 38, 86);
 
@@ -448,10 +503,10 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
 
   const handleWhatsAppShare = () => {
     if (!result) return;
-    const shareUrl = `${window.location.origin}${window.location.pathname}?roll=${result.rollNumber}&dob=${dob}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?admission=${result.admissionNumber}`;
     const textMsg = `*${school ? school.school_name : 'ZPHS AGAMOTHKUR'} - Exam Results*\n\n` +
       `Student Name: *${result.studentName}*\n` +
-      `Roll Number: *${result.rollNumber}*\n` +
+      `Admission Number: *${result.admissionNumber}*\n` +
       `Class & Section: *${result.class} - ${result.section}*\n\n` +
       `*Academic Summary:*\n` +
       `- Total Score: *${result.totalMarksObtained} / ${result.totalMaxMarks}*\n` +
@@ -954,21 +1009,21 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
                 )}
 
                 <form onSubmit={handleSearch} className="space-y-5">
-                  {/* Roll Number Input */}
+                  {/* Admission Number Input */}
                   <div className="space-y-1.5">
-                    <label htmlFor="rollNumber" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                      {t('rollNumber')}
+                    <label htmlFor="admissionNumber" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                      {t('admissionNumber') || 'Admission Number'}
                     </label>
                     <div className="relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                       <input
-                        id="rollNumber"
-                        name="rollNumber"
+                        id="admissionNumber"
+                        name="admissionNumber"
                         type="text"
                         required
-                        placeholder={t('rollNumberPlaceholder') || 'Enter Student Roll Number'}
-                        value={rollNumber}
-                        onChange={(e) => setRollNumber(e.target.value)}
+                        placeholder={t('admissionNumberPlaceholder') || 'Enter Admission Number'}
+                        value={admissionNumber}
+                        onChange={(e) => setAdmissionNumber(e.target.value)}
                         className="pl-11.5 pr-4 py-3.5 w-full border border-slate-200/80 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-slate-800 text-sm font-semibold transition bg-slate-50/30 hover:bg-slate-50/50 focus:bg-white"
                       />
                     </div>
@@ -1201,7 +1256,7 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
                   </div>
                   <h2 className="text-xl sm:text-2.5xl font-black text-slate-900 leading-tight">{result.studentName}</h2>
                   <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-1.5 text-slate-500 text-xs font-semibold justify-center sm:justify-start">
-                    <span>Roll: <strong className="text-slate-800">{result.rollNumber}</strong></span>
+                    <span>Admission Number: <strong className="text-slate-800">{result.admissionNumber}</strong></span>
                     <span>Class & Section: <strong className="text-slate-800">Class {result.class} - {result.section}</strong></span>
                     <span>DOB: <strong className="text-slate-800">{new Date(dob).toLocaleDateString()}</strong></span>
                     <span>Father: <strong className="text-slate-800">{result.studentId ? (result.remarks && (result as any).father_name || "Parent Name") : "Parent Name"}</strong></span>

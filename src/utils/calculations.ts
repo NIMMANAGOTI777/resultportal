@@ -87,7 +87,7 @@ export function calculateSubjectPercentage(marks: SubjectMarks): number {
 export interface StudentWithMarks {
   studentId: string;
   studentName: string;
-  rollNumber: string;
+  admissionNumber: string;
   class: string;
   section: string;
   subjects: {
@@ -98,7 +98,7 @@ export interface StudentWithMarks {
 export interface StudentResultSummary {
   studentId: string;
   studentName: string;
-  rollNumber: string;
+  admissionNumber: string;
   class: string;
   section: string;
   totalMarksObtained: number;
@@ -200,16 +200,16 @@ export function calculateStudentSummary(
 
   // Deterministic Attendance
   const workingDays = 220;
-  const presentDays = getDeterministicValue(student.rollNumber + student.studentName, 178, 218);
+  const presentDays = getDeterministicValue(student.admissionNumber + student.studentName, 178, 218);
   const absentDays = workingDays - presentDays;
   const attendancePercentage = Math.round((presentDays / workingDays) * 100 * 10) / 10;
 
   // Deterministic Co-Curriculars
   const cocurricularGrades = ['A1', 'A2', 'B1', 'B2'];
-  const sports = cocurricularGrades[getDeterministicValue(student.rollNumber + '-sports', 0, 3)];
-  const discipline = cocurricularGrades[getDeterministicValue(student.rollNumber + '-disc', 0, 2)];
-  const leadership = cocurricularGrades[getDeterministicValue(student.rollNumber + '-lead', 0, 3)];
-  const participation = cocurricularGrades[getDeterministicValue(student.rollNumber + '-part', 0, 2)];
+  const sports = cocurricularGrades[getDeterministicValue(student.admissionNumber + '-sports', 0, 3)];
+  const discipline = cocurricularGrades[getDeterministicValue(student.admissionNumber + '-disc', 0, 2)];
+  const leadership = cocurricularGrades[getDeterministicValue(student.admissionNumber + '-lead', 0, 3)];
+  const participation = cocurricularGrades[getDeterministicValue(student.admissionNumber + '-part', 0, 2)];
 
   // Deterministic Remarks
   const strengthsList = [
@@ -232,9 +232,9 @@ export function calculateStudentSummary(
   ];
 
   const remarks = {
-    strengths: strengthsList[getDeterministicValue(student.rollNumber + '-str', 0, strengthsList.length - 1)],
-    improvements: improvementsList[getDeterministicValue(student.rollNumber + '-imp', 0, improvementsList.length - 1)],
-    suggestions: suggestionsList[getDeterministicValue(student.rollNumber + '-sug', 0, suggestionsList.length - 1)]
+    strengths: strengthsList[getDeterministicValue(student.admissionNumber + '-str', 0, strengthsList.length - 1)],
+    improvements: improvementsList[getDeterministicValue(student.admissionNumber + '-imp', 0, improvementsList.length - 1)],
+    suggestions: suggestionsList[getDeterministicValue(student.admissionNumber + '-sug', 0, suggestionsList.length - 1)]
   };
 
   // Calculate ranks
@@ -270,7 +270,7 @@ export function calculateStudentSummary(
   return {
     studentId: student.studentId,
     studentName: student.studentName,
-    rollNumber: student.rollNumber,
+    admissionNumber: student.admissionNumber,
     class: student.class,
     section: student.section,
     totalMarksObtained,

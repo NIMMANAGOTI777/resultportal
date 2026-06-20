@@ -64,7 +64,7 @@ export const translations = {
     studentManagement: "Student Directory",
     addStudent: "Add Student",
     editStudent: "Edit Student",
-    rollNumber: "Roll Number",
+    admissionNumber: "Admission Number",
     studentName: "Student Name",
     fatherName: "Father's Name",
     dob: "Date of Birth",
@@ -108,10 +108,10 @@ export const translations = {
     // Public Result Portal
     parentPortal: "Student & Parent Results Portal",
     findResults: "View Exam Results",
-    rollNumberPlaceholder: "Enter Student Roll Number",
+    admissionNumberPlaceholder: "Enter Admission Number",
     dobPlaceholder: "Select Date of Birth",
     viewResultBtn: "View Marks Card",
-    searchError: "Student not found with this Roll Number and Date of Birth.",
+    searchError: "Student not found with this Admission Number.",
     studentDetails: "Student Details",
     subject: "Subject",
     marksCard: "Academic Performance Report",
@@ -192,7 +192,7 @@ export const translations = {
     studentManagement: "విద్యార్థుల జాబితా",
     addStudent: "విద్యార్థిని చేర్చు",
     editStudent: "విద్యార్థి వివరాలు సవరించు",
-    rollNumber: "రోల్ నంబర్",
+
     studentName: "విద్యార్థి పేరు",
     fatherName: "తండ్రి పేరు",
     dob: "పుట్టిన తేదీ",
@@ -236,10 +236,10 @@ export const translations = {
     // Public Result Portal
     parentPortal: "విద్యార్థి & తల్లిదండ్రుల ఫలితాల పోర్టల్",
     findResults: "పరీక్ష ఫలితాలు చూడండి",
-    rollNumberPlaceholder: "రోల్ నంబర్ నమోదు చేయండి",
+    admissionNumberPlaceholder: "అడ్మిషన్ నంబర్ నమోదు చేయండి",
     dobPlaceholder: "పుట్టిన తేదీని ఎంచుకోండి",
     viewResultBtn: "మార్కుల కార్డు చూడండి",
-    searchError: "ఈ రోల్ నంబర్ మరియు పుట్టిన తేదీతో ఏ విద్యార్థి వివరాలు లభించలేదు.",
+    searchError: "ఈ అడ్మిషన్ నంబర్ తో విద్యార్థి వివరాలు లభించలేదు.",
     studentDetails: "విద్యార్థి వివరాలు",
     subject: "సబ్జెక్టు",
     marksCard: "విద్యా పనితీరు నివేదిక",
@@ -260,9 +260,11 @@ export const translations = {
 export type Language = 'en' | 'te';
 export type TranslationKey = keyof typeof translations.en;
 
-export function useTranslation(lang: Language) {
-  const t = (key: TranslationKey): string => {
-    return translations[lang][key] || translations.en[key] || String(key);
-  };
-  return { t };
-}
+  export function useTranslation(lang: Language) {
+    const t = (key: string): string => {
+      const langObj = (translations[lang] as any);
+      const enObj = (translations.en as any);
+      return langObj[key] || enObj[key] || String(key);
+    };
+    return { t };
+  }

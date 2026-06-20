@@ -13,7 +13,6 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
   const { navigate } = useRouter();
   
   const [admissionNumber, setAdmissionNumber] = useState('');
-  const [studentName, setStudentName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +21,7 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
     
     // Clean and validate admission number (must be 4 digits)
     const cleanAdmission = admissionNumber.trim();
-    if (!cleanAdmission || !studentName.trim()) {
+    if (!cleanAdmission) {
       setError(language === 'te' ? "దయచేసి అన్ని వివరాలను నమోదు చేయండి." : "Please fill in all fields.");
       return;
     }
@@ -36,15 +35,15 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
     setLoading(true);
 
     try {
-      // Look up student in Supabase via RPC
-      const studentData = await dbService.findStudentWithMarks(cleanAdmission, studentName.trim());
-      if (studentData && studentData.student) {
+      // Look up student in Supabase or local storage via admission number only
+      const studentData = await dbService.findStudentByAdmission(cleanAdmission);
+      if (studentData) {
         // Save student profile in sessionStorage
         dbService.saveStudentSession({
-          id: studentData.student.id,
-          name: studentData.student.student_name,
+          id: studentData.id,
+          name: studentData.student_name,
           role: 'student',
-          admissionNumber: studentData.student.admission_number
+          admissionNumber: studentData.admission_number
         });
         
         // Redirect to student dashboard
@@ -52,8 +51,8 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
       } else {
         setError(
           language === 'te' 
-            ? "సరికాని అడ్మిషన్ నంబర్ లేదా విద్యార్థి పేరు. దయచేసి మళ్లీ ప్రయత్నించండి." 
-            : "Invalid Admission Number or Student Name. Please try again."
+            ? "సరికాని అడ్మిషన్ నంబర్. దయచేసి మళ్లీ ప్రయత్నించండి." 
+            : "Invalid Admission Number. Please try again."
         );
       }
     } catch (err: any) {
@@ -79,8 +78,8 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
         </h2>
         <p className="text-sm text-slate-400 font-medium">
           {language === 'te' 
-            ? "మీ అడ్మిషన్ నంబర్ మరియు విద్యార్థి పేరును ఉపయోగించి లాగిన్ చేయండి." 
-            : "Access your report card and marks using Admission Number & Student Name."}
+            ? "మీ అడ్మిషన్ నంబర్ ఉపయోగించి లాగిన్ చేయండి." 
+            : "Access your report card and marks using Admission Number."}
         </p>
       </div>
 
@@ -111,24 +110,11 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-            {language === 'te' ? "విద్యార్థి పేరు (రికార్డు ప్రకారం)" : "Student Name (as per record)"}
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="e.g. Arjun Konda"
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            className="w-full px-4.5 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-slate-800 text-sm font-semibold transition"
-          />
-        </div>
-
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-primary hover:bg-primary-dark active:scale-[0.99] disabled:bg-slate-200 text-white font-black rounded-xl shadow-lg shadow-blue-500/10 transition-all flex items-center justify-center gap-2 mt-8 cursor-pointer text-sm"
+          className="w-full h-14 bg-[#2563eb] hover:bg-[#1e40af] active:scale-[0.99] disabled:bg-slate-200 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/10 transition-all flex items-center justify-center gap-2 mt-6 cursor-pointer text-sm"
+
         >
           {loading ? (
             language === 'te' ? "ధృవీకరిస్తోంది..." : "Verifying..."

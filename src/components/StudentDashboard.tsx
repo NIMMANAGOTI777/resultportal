@@ -128,7 +128,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ language }) 
     doc.setTextColor(15, 23, 42);
     doc.setFont("helvetica", "bold");
     doc.text(result.studentName, 58, 60);
-    doc.text(result.rollNumber, 58, 66);
+    doc.text(result.admissionNumber, 58, 66);
     doc.text(loadedStudent?.father_name || '', 58, 72);
     doc.text(loadedStudent?.phone || '', 58, 78);
 
@@ -258,7 +258,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ language }) 
     doc.text("Headmaster / Principal", 107, sigY + 4, { align: "center" });
     doc.text("Parent / Guardian", 172, sigY + 4, { align: "center" });
 
-    doc.save(`ProgressCard_${result.rollNumber}_${result.studentName.replace(/\s+/g, '_')}.pdf`);
+    doc.save(`ProgressCard_${result.admissionNumber}_${result.studentName.replace(/\s+/g, '_')}.pdf`);
   };
 
   if (loading) {
@@ -303,7 +303,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ language }) 
             {language === 'te' ? `నమస్కారం, ${result.studentName}` : `Welcome back, ${result.studentName}`}
           </h2>
           <p className="text-sm text-slate-400 font-medium">
-            Class {result.class} (Section {result.section}) &bull; Roll Number {result.rollNumber}
+            Class {result.class} (Section {result.section}) &bull; Admission Number {result.admissionNumber}
           </p>
         </div>
 
