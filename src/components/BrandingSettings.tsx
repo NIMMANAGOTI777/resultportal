@@ -133,10 +133,12 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2 space-y-1">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <label htmlFor="branding-school-name" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t('schoolName')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="branding-school-name"
+                  name="school_name"
                   type="text"
                   required
                   value={formData.school_name}
@@ -146,10 +148,12 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <label htmlFor="branding-school-code" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t('schoolCode')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="branding-school-code"
+                  name="school_code"
                   type="text"
                   required
                   value={formData.school_code}
@@ -159,10 +163,12 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <label htmlFor="branding-academic-year" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t('academicYear')} <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="branding-academic-year"
+                  name="academic_year"
                   type="text"
                   required
                   value={formData.academic_year}
@@ -181,11 +187,13 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
             </h3>
             
             <div className="space-y-1">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+              <label htmlFor="branding-logo-url" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                 {t('logoUrl')}
               </label>
               <div className="flex gap-4 items-center">
                 <input
+                  id="branding-logo-url"
+                  name="logo_url"
                   type="url"
                   value={formData.logo_url}
                   onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
@@ -204,10 +212,12 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
             
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <label htmlFor="branding-address" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t('schoolAddress')}
                 </label>
                 <textarea
+                  id="branding-address"
+                  name="address"
                   rows={2}
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -216,10 +226,12 @@ export const BrandingSettings: React.FC<BrandingSettingsProps> = ({ language, on
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <label htmlFor="branding-footer-text" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                   {t('footerText')}
                 </label>
                 <textarea
+                  id="branding-footer-text"
+                  name="footer_text"
                   rows={2}
                   value={formData.footer_text}
                   onChange={(e) => setFormData({ ...formData, footer_text: e.target.value })}

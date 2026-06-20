@@ -208,8 +208,9 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
             studentName: cs.student_name,
             admissionNumber: cs.admission_number,
             class: cs.class,
-            section: cs.section,
-            subjects: csMarksMap
+            section: cs.section || 'A',
+            subjects: csMarksMap,
+            attendance: { workingDays: 0, presentDays: 0 }
           });
         }
         const currentWithMarks = {
@@ -217,8 +218,9 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
           studentName: student.student_name,
           admissionNumber: student.admission_number,
           class: student.class,
-          section: student.section,
-          subjects: studentMarksMap
+          section: student.section || 'A',
+          subjects: studentMarksMap,
+          attendance: { workingDays: 0, presentDays: 0 }
         };
         // Step 3: AI Synthesis (simulated)
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -350,6 +352,16 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
     doc.text(result.admissionNumber, 38, 76);
     doc.text(`Class ${result.class} - Section ${result.section}`, 38, 81);
     doc.text(sc.academic_year, 38, 86);
+
+    // Optional Caste and PEN Number
+    if (result.caste) {
+      doc.text('Caste:', 10, 91);
+      doc.text(result.caste, 38, 91);
+    }
+    if (result.penNumber) {
+      doc.text('PEN No.:', 110, 91);
+      doc.text(result.penNumber, 138, 91);
+    }
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(71, 85, 105);

@@ -78,8 +78,9 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       studentName: student.student_name,
       admissionNumber: student.admission_number,
       class: student.class,
-      section: student.section,
-      subjects: studentMarks
+      section: student.section || 'A',
+      subjects: studentMarks,
+      attendance: { workingDays: 0, presentDays: 0 }
     };
 
     // Calculate rank inside classStudents
@@ -94,8 +95,9 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
         studentName: cs.student_name,
         admissionNumber: cs.admission_number,
         class: cs.class,
-        section: cs.section,
-        subjects: csMarks
+        section: cs.section || 'A',
+        subjects: csMarks,
+        attendance: { workingDays: 0, presentDays: 0 }
       };
     });
 
@@ -364,7 +366,10 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
 
         {/* Filter selectors */}
         <div className="flex gap-2.5 bg-slate-100/70 p-1.5 rounded-2xl border border-slate-200/40">
+          <label htmlFor="reportcard-class-select" className="sr-only">Filter by Class</label>
           <select
+            id="reportcard-class-select"
+            name="selectedClass"
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
             className="px-3.5 py-1.5 bg-white border border-slate-200/50 rounded-xl text-xs font-bold text-slate-700 outline-none cursor-pointer"
@@ -374,7 +379,10 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
             ))}
           </select>
 
+          <label htmlFor="reportcard-section-select" className="sr-only">Filter by Section</label>
           <select
+            id="reportcard-section-select"
+            name="selectedSection"
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
             className="px-3.5 py-1.5 bg-white border border-slate-200/50 rounded-xl text-xs font-bold text-slate-700 outline-none cursor-pointer"
@@ -389,8 +397,11 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       {/* Directory search control bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-3.5 justify-between">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+          <label htmlFor="reportcard-search" className="sr-only">Search students in this class</label>
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" aria-hidden="true" />
           <input
+            id="reportcard-search"
+            name="searchQuery"
             type="text"
             placeholder="Search students in this class by name or roll number..."
             value={searchQuery}

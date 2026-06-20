@@ -68,10 +68,10 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
     setFormData({
       admission_number: student.admission_number,
       student_name: student.student_name,
-      father_name: student.father_name,
+      father_name: student.father_name || '',
       class: student.class,
-      section: student.section,
-      phone: student.phone
+      section: student.section || 'A',
+      phone: student.phone || ''
     });
     setErrorMsg('');
     setSuccessMsg('');
@@ -130,7 +130,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
     const matchesSearch = 
       student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.admission_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.father_name.toLowerCase().includes(searchQuery.toLowerCase());
+      (student.father_name || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesClass = selectedClass === 'all' || student.class === selectedClass;
     
@@ -170,8 +170,11 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-3.5 justify-between">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+          <label htmlFor="student-search" className="sr-only">Search students</label>
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" aria-hidden="true" />
           <input
+            id="student-search"
+            name="search"
             type="text"
             placeholder="Search students by name, roll number, or father's name..."
             value={searchQuery}
@@ -181,7 +184,10 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
         </div>
         
         <div className="flex gap-3">
+          <label htmlFor="student-class-filter" className="sr-only">Filter by class</label>
           <select
+            id="student-class-filter"
+            name="classFilter"
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
             className="px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm font-bold text-slate-700 bg-white cursor-pointer min-w-[140px]"
@@ -300,10 +306,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-admission" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {language === 'te' ? 'అడ్మిషన్ నంబర్' : 'Admission Number'} <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="student-admission"
+                      name="admission_number"
                       type="text"
                       required
                       maxLength={4}
@@ -315,10 +323,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-name" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('studentName')} <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="student-name"
+                      name="student_name"
                       type="text"
                       required
                       value={formData.student_name}
@@ -328,10 +338,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   </div>
 
                   <div className="sm:col-span-2 space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-father" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('fatherName')} <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="student-father"
+                      name="father_name"
                       type="text"
                       required
                       value={formData.father_name}
@@ -341,10 +353,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-class" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('class')}
                     </label>
                     <select
+                      id="student-class"
+                      name="class"
                       value={formData.class}
                       onChange={(e) => setFormData({ ...formData, class: e.target.value })}
                       className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/30 cursor-pointer"
@@ -358,10 +372,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-section" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('section')}
                     </label>
                     <select
+                      id="student-section"
+                      name="section"
                       value={formData.section}
                       onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                       className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-bold bg-slate-50/30 cursor-pointer"
@@ -373,15 +389,17 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                   </div>
 
                   <div className="sm:col-span-2 space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <label htmlFor="student-phone" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('phone')}
                     </label>
                     <input
+                      id="student-phone"
+                      name="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="e.g. +91 9876543210"
-                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
+                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-slate-800 text-sm font-semibold bg-slate-50/30"
                     />
                   </div>
                 </div>

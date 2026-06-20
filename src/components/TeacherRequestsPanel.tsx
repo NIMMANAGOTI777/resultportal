@@ -137,6 +137,7 @@ export const TeacherRequestsPanel: React.FC<TeacherRequestsPanelProps> = ({ lang
                               onClick={() => handleAction(req.id, 'approved')}
                               className="inline-flex items-center justify-center p-2 bg-green-50 hover:bg-green-100 text-green-600 hover:text-green-700 rounded-xl border border-green-150 transition cursor-pointer"
                               title="Approve & Provision Account"
+                              aria-label={`Approve request from ${req.name}`}
                             >
                               <Check className="h-4 w-4" />
                             </button>
@@ -145,6 +146,7 @@ export const TeacherRequestsPanel: React.FC<TeacherRequestsPanelProps> = ({ lang
                               onClick={() => handleAction(req.id, 'rejected')}
                               className="inline-flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-xl border border-red-150 transition cursor-pointer"
                               title="Reject Request"
+                              aria-label={`Reject request from ${req.name}`}
                             >
                               <X className="h-4 w-4" />
                             </button>

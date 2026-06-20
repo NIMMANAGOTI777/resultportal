@@ -90,8 +90,14 @@ export interface StudentWithMarks {
   admissionNumber: string;
   class: string;
   section: string;
+  caste?: string;
+  penNumber?: string;
   subjects: {
     [subjectName: string]: SubjectMarks;
+  };
+  attendance: {
+    workingDays: number;
+    presentDays: number;
   };
 }
 
@@ -101,6 +107,8 @@ export interface StudentResultSummary {
   admissionNumber: string;
   class: string;
   section: string;
+  caste?: string;
+  penNumber?: string;
   totalMarksObtained: number;
   totalMaxMarks: number;
   overallPercentage: number;
@@ -273,6 +281,8 @@ export function calculateStudentSummary(
     admissionNumber: student.admissionNumber,
     class: student.class,
     section: student.section,
+    caste: student.caste,
+    penNumber: student.penNumber,
     totalMarksObtained,
     totalMaxMarks,
     overallPercentage,

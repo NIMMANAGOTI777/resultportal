@@ -181,12 +181,14 @@ export const MarksManagement: React.FC<MarksManagementProps> = ({ language }) =>
       <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-4">
         {/* Class Selector */}
         <div className="flex-1 space-y-1.5">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+          <label htmlFor="marks-class-select" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
             {t('selectClass')}
           </label>
           <div className="relative">
-            <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+            <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" aria-hidden="true" />
             <select
+              id="marks-class-select"
+              name="selectedClass"
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
               className="pl-10.5 pr-4 py-2.5 w-full border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm font-bold text-slate-700 bg-white cursor-pointer"
@@ -200,12 +202,14 @@ export const MarksManagement: React.FC<MarksManagementProps> = ({ language }) =>
 
         {/* Subject Selector */}
         <div className="flex-1 space-y-1.5">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+          <label htmlFor="marks-subject-select" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
             {t('selectSubject')}
           </label>
           <div className="relative">
-            <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+            <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" aria-hidden="true" />
             <select
+              id="marks-subject-select"
+              name="selectedSubject"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
               className="pl-10.5 pr-4 py-2.5 w-full border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm font-bold text-slate-700 bg-white cursor-pointer"
@@ -252,15 +256,22 @@ export const MarksManagement: React.FC<MarksManagementProps> = ({ language }) =>
                   const computedGrade = computedMax > 0 ? getGrade(computedPercent) : '—';
 
                   const makeInput = (field: keyof Mark) => (
-                    <input
-                      type="number"
-                      min="0"
-                      max={field.startsWith('fa') ? 50 : 100}
-                      value={currentValues[field] ?? ''}
-                      placeholder="—"
-                      onChange={(e) => handleMarkChange(student.id, field, e.target.value)}
-                      className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-center font-semibold focus:border-primary focus:ring-2 focus:ring-blue-500/10 outline-none text-xs"
-                    />
+                    <div className="relative">
+                      <label htmlFor={`marks-${student.id}-${field}`} className="sr-only">
+                        {`Enter ${field.toUpperCase()} mark for ${student.student_name}`}
+                      </label>
+                      <input
+                        id={`marks-${student.id}-${field}`}
+                        name={`${field}_${student.id}`}
+                        type="number"
+                        min="0"
+                        max={field.startsWith('fa') ? 50 : 100}
+                        value={currentValues[field] ?? ''}
+                        placeholder="—"
+                        onChange={(e) => handleMarkChange(student.id, field, e.target.value)}
+                        className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-center font-semibold focus:border-primary focus:ring-2 focus:ring-blue-500/10 outline-none text-xs"
+                      />
+                    </div>
                   );
 
                   return (

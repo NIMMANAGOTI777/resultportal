@@ -77,12 +77,14 @@ export const TeacherLogin: React.FC<TeacherLoginProps> = ({ language }) => {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-premium space-y-5">
         <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+          <label htmlFor="teacher-login-email" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             {t('email')}
           </label>
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
+              id="teacher-login-email"
+              name="email"
               type="email"
               required
               placeholder="teacher@zphs.edu"
@@ -94,10 +96,12 @@ export const TeacherLogin: React.FC<TeacherLoginProps> = ({ language }) => {
         </div>
 
         <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+          <label htmlFor="teacher-login-password" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             {t('password')}
           </label>
           <input
+            id="teacher-login-password"
+            name="password"
             type="password"
             required
             placeholder="••••••••"

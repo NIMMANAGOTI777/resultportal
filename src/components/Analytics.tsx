@@ -286,7 +286,10 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
         {/* Filter dock */}
         <div className="flex flex-wrap gap-2.5 bg-slate-100/70 p-1.5 rounded-2xl border border-slate-200/40">
           {/* Class Selector */}
+          <label htmlFor="analytics-class-select" className="sr-only">Filter Analytics by Class</label>
           <select
+            id="analytics-class-select"
+            name="selectedClass"
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
             className="px-3.5 py-1.5 bg-white border border-slate-200/50 rounded-xl text-xs font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/10"
@@ -298,7 +301,10 @@ export const Analytics: React.FC<AnalyticsProps> = ({ language }) => {
           </select>
 
           {/* Section Selector */}
+          <label htmlFor="analytics-section-select" className="sr-only">Filter Analytics by Section</label>
           <select
+            id="analytics-section-select"
+            name="selectedSection"
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
             className="px-3.5 py-1.5 bg-white border border-slate-200/50 rounded-xl text-xs font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/10"

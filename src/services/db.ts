@@ -3,7 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 // Read env variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://wvwuibrrpmltahqotjfc.supabase.co';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_nPNFUylGbYhgu13U40SnIA_hnxB98be';
-export const isSupabaseConfigured = !!supabaseUrl && !!supabaseKey;
+// New flag: if VITE_USE_LOCAL_DATA is true, force mock usage
+const useLocalData = import.meta.env.VITE_USE_LOCAL_DATA === 'true';
+export const isSupabaseConfigured = !useLocalData && !!supabaseUrl && !!supabaseKey;
 export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseKey) : null;
 console.log(isSupabaseConfigured ? "Supabase client initialized" : "Using localStorage mock database fallback");
 
@@ -30,11 +32,13 @@ export interface Student {
   id: string;
   admission_number: string;
   student_name: string;
-  father_name: string;
+  father_name?: string;
   class: string;
-  section: string;
-  phone: string;
+  section?: string;
+  phone?: string;
   school_id: string;
+  caste?: string; // optional caste for 8th class
+  pen_number?: string; // optional PEN for 9th & 10th classes
 }
 
 export interface TeacherRequest {
@@ -100,29 +104,101 @@ const DEFAULT_SUBJECTS: Subject[] = [
   { id: "sub-social", subject_name: "Social Studies" }
 ];
 
-const firstNames = ['Arjun', 'Sai', 'Karthik', 'Pranathi', 'Sravanthi', 'Nikhil', 'Pooja', 'Lokesh', 'Vineeth', 'Siri', 'Anusha', 'Charitha', 'Manikanta', 'Ganesh', 'Venkatesh', 'Rishwik', 'Varun', 'Tejasri', 'Akshaya', 'Bhavana'];
-const lastNames = ['Konda', 'Madasu', 'Bantu', 'Dasari', 'Jujjuri', 'Kommu', 'Nellutla', 'Allutla', 'Andem', 'Avirendla', 'Kurella', 'Pandiri', 'Nakirekanti', 'Boddu', 'Bommakanti', 'Kandlakunti', 'Nellore', 'Bairi', 'Chekka', 'Palla'];
-const classes = ['8', '9', '10'];
-const sections = ['A', 'B'];
 
-const DEFAULT_STUDENTS: Student[] = [];
-for (let i = 0; i < 20; i++) {
-  const admissionNumber = (7001 + i).toString();
-  const classVal = classes[i % classes.length];
-  const sectionVal = sections[i % sections.length];
-  DEFAULT_STUDENTS.push({
-    id: `stud-seeded-${admissionNumber}`,
-    admission_number: admissionNumber,
-    student_name: `${firstNames[i]} ${lastNames[i]}`,
-    father_name: `${lastNames[i]} Sr.`,
-    class: classVal,
-    section: sectionVal,
-    phone: `98765432${i.toString().padStart(2, '0')}`,
-    school_id: 'school-zphs-1'
-  });
-}
+
+const CLASS_8_STUDENTS: Student[] = [
+  { id: 'stud-8-1', admission_number: '3855', student_name: 'B. Jyothika', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-2', admission_number: '3856', student_name: 'D. Sri Laxmi', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-3', admission_number: '3857', student_name: 'B. Gowthami', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-4', admission_number: '3859', student_name: 'Ch. Charitha', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-5', admission_number: '3862', student_name: 'B. Yogitha', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-6', admission_number: '3886', student_name: 'B. Nandini', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-7', admission_number: '3886', student_name: 'N. Anusha', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-8', admission_number: '3962', student_name: 'K. Sravani', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-9', admission_number: '3894', student_name: 'O. Vaishnavi', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-10', admission_number: '3955', student_name: 'J. Shindy', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-11', admission_number: '3965', student_name: 'Shahiya', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-12', admission_number: '3848', student_name: 'B. Vikas', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-13', admission_number: '3874', student_name: 'B. Abinav', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-14', admission_number: '3877', student_name: 'N. Sai Reddy', caste: 'OC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-15', admission_number: '3851', student_name: 'N. Pranith', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-16', admission_number: '3853', student_name: 'B. Shiva', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-17', admission_number: '3854', student_name: 'J. Charan Teja', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-18', admission_number: '3849', student_name: 'M. Ishaab', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-19', admission_number: '3887', student_name: 'G. Veneel', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-20', admission_number: '3875', student_name: 'P. Shashank', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-21', admission_number: '3888', student_name: 'D. Varun Teja', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-22', admission_number: '3932', student_name: 'K. Lokesh', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-23', admission_number: '3954', student_name: 'V. Karthik', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-24', admission_number: '3956', student_name: 'N. Vignesh', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-25', admission_number: '3957', student_name: 'M. Mahidher', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-26', admission_number: '3959', student_name: 'N. Piyush', caste: 'SC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-27', admission_number: '3852', student_name: 'A. Ganesh', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-28', admission_number: '3858', student_name: 'M. Venkatesh', caste: 'BC', class: '8', school_id: 'school-zphs-1' },
+  { id: 'stud-8-29', admission_number: '3888', student_name: 'A. Jaswanth', caste: 'BC', class: '8', school_id: 'school-zphs-1' }
+];
+
+const CLASS_9_STUDENTS: Student[] = [
+  { id: 'stud-9-1', admission_number: '3888', student_name: 'ALLUTLA JASHWANTH', pen_number: '20043448231', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-2', admission_number: '3852', student_name: 'ANDEM GANESH', pen_number: '20009510862', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-3', admission_number: '3874', student_name: 'BANDI ABHINAV', pen_number: '20035943704', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-4', admission_number: '3857', student_name: 'BANTU GOUTHAMI', pen_number: '20284480027', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-5', admission_number: '3855', student_name: 'BANTU JYOTHIKA', pen_number: '20066437383', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-6', admission_number: '3862', student_name: 'BODDU NANDINI', pen_number: '20286840073', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-7', admission_number: '3853', student_name: 'BODDU SHIVA', pen_number: '20248214956', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-8', admission_number: '3848', student_name: 'BODDU VIKAS', pen_number: '20021149874', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-9', admission_number: '3859', student_name: 'BOLKONDA YOGITHA', pen_number: '20005827141', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-10', admission_number: '3858', student_name: 'CHITHALURI CHARITHA', pen_number: '20031236671', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-11', admission_number: '3856', student_name: 'DASARI SRILAKSHMI', pen_number: '20011214098', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-12', admission_number: '3894', student_name: 'DASARI VAISHNAVI', pen_number: '20030624669', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-13', admission_number: '3893', student_name: 'DASARI VARUN TEJ', pen_number: '20200733559', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-14', admission_number: '3887', student_name: 'GADDAMIDI VINEEL', pen_number: '20030121162', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-15', admission_number: '3955', student_name: 'JAKKALA SINDHU', pen_number: '20661586021', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-16', admission_number: '3854', student_name: 'JUJJURI CHARAN TEJA', pen_number: '20531158076', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-17', admission_number: '3932', student_name: 'KOKA LOKESH', pen_number: '20267445366', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-18', admission_number: '3962', student_name: 'KONDA SRAVANI', pen_number: '20624586182', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-19', admission_number: '3958', student_name: 'MADASU VENKATESH', pen_number: '20014304247', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-20', admission_number: '3849', student_name: 'MALLEBOINA ISSAK', pen_number: '20014106936', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-21', admission_number: '3957', student_name: 'MANDALA MAHIDHAR', pen_number: '20032994519', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-22', admission_number: '3886', student_name: 'NAKIREKANTI ANUSHA', pen_number: '20287847771', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-23', admission_number: '3851', student_name: 'NAKIREKANTI PRANITH', pen_number: '20022664030', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-24', admission_number: '3877', student_name: 'NAMIREDDY SAI REDDY', pen_number: '20215120374', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-25', admission_number: '3956', student_name: 'NELLUTLA VIGNESH', pen_number: '20402049366', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-26', admission_number: '3875', student_name: 'PALLA SHESHANK', pen_number: '20173926776', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-27', admission_number: '3965', student_name: 'SHAIK SHAHIN', pen_number: '20012250540', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-28', admission_number: '3954', student_name: 'VALLOJU KARTHIK', pen_number: '20071880822', class: '9', school_id: 'school-zphs-1' },
+  { id: 'stud-9-29', admission_number: '3959', student_name: 'NUKAPANGA RISHWIK', pen_number: '20091654514', class: '9', school_id: 'school-zphs-1' }
+];
+
+const CLASS_10_STUDENTS: Student[] = [
+  { id: 'stud-10-1', admission_number: '3827', student_name: 'AVIRENDLA BINDHUSRI', pen_number: '20341624129', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-2', admission_number: '3826', student_name: 'AVIRENDLA MAHALAKSHMI', pen_number: '20096736173', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-3', admission_number: '3961', student_name: 'BANTU MAHALAXMI', pen_number: '20012282664', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-4', admission_number: '3825', student_name: 'BANTU SHIRISHA', pen_number: '20082311105', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-5', admission_number: '3814', student_name: 'CHITHALURI BHAVANA', pen_number: '20102979903', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-6', admission_number: '3933', student_name: 'KATAM AKSHAYA', pen_number: '20056002391', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-7', admission_number: '3807', student_name: 'NAKKA NIHARIKA', pen_number: '20531661379', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-8', admission_number: '3917', student_name: 'NAMPALLY CHETHANA', pen_number: '20316867564', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-9', admission_number: '3821', student_name: 'PALLA POOJA', pen_number: '20004005510', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-10', admission_number: '3918', student_name: 'PATHANI SIRI', pen_number: '20667127504', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-11', admission_number: '3920', student_name: 'YALAGABOINA TEJASRI', pen_number: '20237083500', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-12', admission_number: '3816', student_name: 'BANTU JASHWANTH', pen_number: '20143271715', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-13', admission_number: '3815', student_name: 'BANTU KARTHIK', pen_number: '20039537121', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-14', admission_number: '3880', student_name: 'BANTU RISHI', pen_number: '20006215044', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-15', admission_number: '3818', student_name: 'BANTU SAIRAM', pen_number: '20207602801', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-16', admission_number: '3819', student_name: 'BODDU SHIVA', pen_number: '20009203847', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-17', admission_number: '3805', student_name: 'BOMMAKANTI MANIKANTA', pen_number: '20920763703', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-18', admission_number: '3916', student_name: 'KANDLAKUNTI RAMBABU', pen_number: '20009698082', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-19', admission_number: '3960', student_name: 'KOMMU LOKESH', pen_number: '20176486188', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-20', admission_number: '3915', student_name: 'KURELLA SHIVAMANI NAGABHUSHANAM', pen_number: '20521038904', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-21', admission_number: '3845', student_name: 'MANDALA SAIKUMAR', pen_number: '20007971283', class: '10', school_id: 'school-zphs-1' },
+  { id: 'stud-10-22', admission_number: '3804', student_name: 'PANDIRI NIKHIL', pen_number: '20119791746', class: '10', school_id: 'school-zphs-1' }
+];
+
+const DEFAULT_STUDENTS: Student[] = [...CLASS_8_STUDENTS, ...CLASS_9_STUDENTS, ...CLASS_10_STUDENTS];
 
 const DEFAULT_MARKS: Mark[] = [];
+// Generate mock marks for each student‑subject pair using the same deterministic algorithm as before.
 DEFAULT_STUDENTS.forEach((student, idx) => {
   DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
     const seed = idx * 7 + subIdx;
@@ -130,7 +206,7 @@ DEFAULT_STUDENTS.forEach((student, idx) => {
     const fa2 = 13 + ((seed + 2) % 8);
     const fa3 = 13 + ((seed + 3) % 8);
     const fa4 = 13 + ((seed + 5) % 8);
-    const sa1 = 60 + ((seed * 2) % 36); // 60-95
+    const sa1 = 60 + ((seed * 2) % 36); // 60‑95
     const sa2 = 60 + ((seed * 4) % 36);
     DEFAULT_MARKS.push({
       id: `m-${student.id}-${subject.id}`,
@@ -740,7 +816,10 @@ export const dbService = {
           admissionNumber: cs.admission_number,
           class: cs.class,
           section: cs.section,
-          subjects: csMarksMap
+          caste: cs.caste,
+          penNumber: cs.pen_number,
+          subjects: csMarksMap,
+          attendance: { workingDays: 0, presentDays: 0 }
         });
       }
 
@@ -750,7 +829,10 @@ export const dbService = {
         admissionNumber: student.admission_number,
         class: student.class,
         section: student.section,
-        subjects: studentMarksMap
+        caste: student.caste,
+        penNumber: student.pen_number,
+        subjects: studentMarksMap,
+        attendance: { workingDays: 0, presentDays: 0 }
       };
 
       return {

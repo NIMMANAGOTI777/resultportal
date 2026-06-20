@@ -99,10 +99,12 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ language }) => {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-premium space-y-6">
         <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+          <label htmlFor="student-login-admission" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             {language === 'te' ? "అడ్మిషన్ నంబర్ (4 అంకెలు)" : "Admission Number (4 digits)"}
           </label>
           <input
+            id="student-login-admission"
+            name="admissionNumber"
             type="text"
             required
             maxLength={4}

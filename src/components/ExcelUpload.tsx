@@ -305,8 +305,10 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
         } cursor-pointer`}
         onClick={() => document.getElementById('excel-file-input')?.click()}
       >
+        <label htmlFor="excel-file-input" className="sr-only">Upload Excel Marksheet</label>
         <input
           id="excel-file-input"
+          name="excel-file-input"
           type="file"
           accept=".xlsx,.xls"
           onChange={handleChange}

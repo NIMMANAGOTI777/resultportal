@@ -74,27 +74,29 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ language }) => {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-premium space-y-5">
         <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-            Admin Email Address
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="email"
-              required
-              placeholder="admin@zphs.edu"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-11 pr-4.5 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-slate-800 text-sm font-semibold transition"
-            />
-          </div>
+            <label htmlFor="adminEmail" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Admin Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                id="adminEmail"
+                name="adminEmail"
+                type="email"
+                required
+                placeholder="admin@zphs.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-11 pr-4.5 py-3 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-slate-800 text-sm font-semibold transition"
+              />
+            </div>
         </div>
 
         <div className="space-y-2">
-          <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+          <label htmlFor="admin-login-password" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             Password
           </label>
           <input
+            id="admin-login-password"
+            name="password"
             type="password"
             required
             placeholder="••••••••"

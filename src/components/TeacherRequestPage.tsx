@@ -31,6 +31,19 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setError(language === 'te' ? "దయచేసి సరైన ఈమెయిల్ చిరునామాను నమోదు చేయండి." : "Please enter a valid email address.");
+      return;
+    }
+
+    const cleanPhone = formData.phone.trim().replace(/[\s\-()]/g, '');
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+    if (!phoneRegex.test(cleanPhone)) {
+      setError(language === 'te' ? "దయచేసి సరైన ఫోన్ నంబర్ నమోదు చేయండి." : "Please enter a valid phone number.");
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -46,7 +59,7 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
       setFormData({ name: '', email: '', phone: '', subject: '', qualification: '' });
     } catch (err: any) {
       console.error(err);
-      if (err.message && err.message.includes('unique')) {
+      if (err.code === '23505' || (err.message && (err.message.includes('unique') || err.message.includes('duplicate') || err.message.includes('already exists')))) {
         setError(language === 'te' ? "ఈ ఈమెయిల్ తో అభ్యర్థన ఇప్పటికే సమర్పించబడింది." : "A request with this email already exists.");
       } else {
         setError(language === 'te' ? "సమర్పణ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి." : "Failed to submit request. Please try again.");
@@ -119,12 +132,14 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
       ) : (
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-premium space-y-5">
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+            <label htmlFor="teacher-name" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               {language === 'te' ? "పూర్తి పేరు" : "Full Name"}
             </label>
             <div className="relative">
               <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
               <input
+                id="teacher-name"
+                name="name"
                 type="text"
                 required
                 placeholder={language === 'te' ? "ఉదా. రాముడు రావు" : "e.g. Rama Rao"}
@@ -136,12 +151,14 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+            <label htmlFor="teacher-email" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               {language === 'te' ? "ఈమెయిల్ చిరునామా" : "Email Address"}
             </label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
               <input
+                id="teacher-email"
+                name="email"
                 type="email"
                 required
                 placeholder="e.g. teacher@school.edu"
@@ -153,12 +170,14 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+            <label htmlFor="teacher-phone" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               {language === 'te' ? "ఫోన్ నంబర్" : "Phone Number"}
             </label>
             <div className="relative">
               <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
               <input
+                id="teacher-phone"
+                name="phone"
                 type="tel"
                 required
                 placeholder="e.g. +91 9876543210"
@@ -171,12 +190,14 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              <label htmlFor="teacher-subject" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                 {language === 'te' ? "బోధించే సబ్జెక్ట్" : "Teaching Subject"}
               </label>
               <div className="relative">
                 <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                 <input
+                  id="teacher-subject"
+                  name="subject"
                   type="text"
                   required
                   placeholder="e.g. Mathematics"
@@ -188,12 +209,14 @@ export const TeacherRequestPage: React.FC<TeacherRequestPageProps> = ({ language
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+              <label htmlFor="teacher-qualification" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                 {language === 'te' ? "అర్హత" : "Qualification"}
               </label>
               <div className="relative">
                 <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                 <input
+                  id="teacher-qualification"
+                  name="qualification"
                   type="text"
                   required
                   placeholder="e.g. B.Ed, M.Sc"
