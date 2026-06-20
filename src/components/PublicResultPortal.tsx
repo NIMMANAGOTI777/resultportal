@@ -34,7 +34,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -336,7 +336,7 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
       ];
     });
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: tableHeaders,
       body: tableBody,
       startY: 92,
@@ -344,7 +344,7 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
       headStyles: { fillColor: [37, 99, 235], halign: 'center', fontSize: 8, fontStyle: 'bold' },
       bodyStyles: { fontSize: 7.5, halign: 'center' },
       columnStyles: {
-        0: { fontStyle: 'bold', halign: 'left', width: 36 },
+        0: { fontStyle: 'bold', halign: 'left', cellWidth: 36 },
         5: { fontStyle: 'bold', fillColor: [248, 250, 252] },
         8: { fontStyle: 'bold', fillColor: [240, 246, 255] },
         9: { fontStyle: 'bold' },
@@ -372,7 +372,7 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
     const secondaryY = finalY + 22;
     
     // Attendance Table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [["Attendance Record", "Days / %"]],
       body: [
         ["Total Working Days", result.attendance.workingDays],
@@ -390,7 +390,7 @@ export const PublicResultPortal: React.FC<PublicResultPortalProps> = ({ language
     });
 
     // Co-Curricular Grade Table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [["Co-Curricular Domain", "Grade / Rating"]],
       body: [
         ["Sports & Games", result.cocurricular.sports],

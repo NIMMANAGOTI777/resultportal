@@ -229,7 +229,7 @@ export const MarksManagement: React.FC<MarksManagementProps> = ({ language }) =>
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-center">
-                  <th className="py-4.5 px-6 text-left w-20">Roll</th>
+                  <th className="py-4.5 px-6 text-left w-20">Admission No</th>
                   <th className="py-4.5 px-6 text-left w-52">Student Name</th>
                   <th className="py-4.5 px-2">FA1 (50)</th>
                   <th className="py-4.5 px-2">FA2 (50)</th>
@@ -265,7 +265,7 @@ export const MarksManagement: React.FC<MarksManagementProps> = ({ language }) =>
 
                   return (
                     <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3.5 px-6 font-bold text-slate-900">{student.roll_number}</td>
+                      <td className="py-3.5 px-6 font-bold text-slate-900">{student.admission_number}</td>
                       <td className="py-3.5 px-6 font-bold text-slate-900">{student.student_name}</td>
                       <td className="py-3.5 px-2 text-center">{makeInput('fa1')}</td>
                       <td className="py-3.5 px-2 text-center">{makeInput('fa2')}</td>

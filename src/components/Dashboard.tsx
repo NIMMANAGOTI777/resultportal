@@ -264,7 +264,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ language }) => {
                 pendingStudents.slice(0, 4).map((stud, idx) => (
                   <div key={idx} className="flex justify-between items-center py-1 border-b border-slate-100">
                     <span className="truncate">{stud.student_name}</span>
-                    <span className="text-[9px] bg-slate-100 rounded px-1 font-bold">Roll {stud.roll_number}</span>
+                    <span className="text-[9px] bg-slate-100 rounded px-1 font-bold">Adm {stud.admission_number}</span>
                   </div>
                 ))
               ) : (

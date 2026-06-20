@@ -21,10 +21,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [formData, setFormData] = useState({
-    roll_number: '',
+    admission_number: '',
     student_name: '',
     father_name: '',
-    date_of_birth: '',
     class: '9',
     section: 'A',
     phone: ''
@@ -52,10 +51,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
   const handleOpenAddModal = () => {
     setEditingStudent(null);
     setFormData({
-      roll_number: '',
+      admission_number: '',
       student_name: '',
       father_name: '',
-      date_of_birth: '',
       class: '9',
       section: 'A',
       phone: ''
@@ -68,10 +66,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
   const handleOpenEditModal = (student: Student) => {
     setEditingStudent(student);
     setFormData({
-      roll_number: student.roll_number,
+      admission_number: student.admission_number,
       student_name: student.student_name,
       father_name: student.father_name,
-      date_of_birth: student.date_of_birth,
       class: student.class,
       section: student.section,
       phone: student.phone
@@ -98,8 +95,13 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
     e.preventDefault();
     setErrorMsg('');
     
-    if (!formData.roll_number || !formData.student_name || !formData.father_name || !formData.date_of_birth) {
-      setErrorMsg('Please fill in all required fields.');
+    if (!formData.admission_number || !formData.student_name || !formData.father_name) {
+      setErrorMsg(language === 'te' ? 'దయచేసి అన్ని వివరాలను నమోదు చేయండి.' : 'Please fill in all required fields.');
+      return;
+    }
+
+    if (!/^\d{4}$/.test(formData.admission_number)) {
+      setErrorMsg(language === 'te' ? 'అడ్మిషన్ నంబర్ ఖచ్చితంగా 4 అంకెలు ఉండాలి.' : 'Admission Number must be exactly 4 digits.');
       return;
     }
 
@@ -127,7 +129,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
   const filteredStudents = students.filter(student => {
     const matchesSearch = 
       student.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.roll_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.admission_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.father_name.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesClass = selectedClass === 'all' || student.class === selectedClass;
@@ -203,10 +205,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-                  <th className="py-4.5 px-6">{t('rollNumber')}</th>
+                  <th className="py-4.5 px-6">{language === 'te' ? 'అడ్మిషన్ నంబర్' : 'Admission Number'}</th>
                   <th className="py-4.5 px-6">{t('studentName')}</th>
                   <th className="py-4.5 px-6">{t('fatherName')}</th>
-                  <th className="py-4.5 px-6">{t('dob')}</th>
                   <th className="py-4.5 px-6">{t('class')}</th>
                   <th className="py-4.5 px-6">{t('section')}</th>
                   <th className="py-4.5 px-6">{t('phone')}</th>
@@ -216,12 +217,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
               <tbody className="divide-y divide-slate-100 text-sm text-slate-650">
                 {filteredStudents.map(student => (
                   <tr key={student.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="py-4 px-6 font-bold text-slate-900">{student.roll_number}</td>
+                    <td className="py-4 px-6 font-bold text-slate-900">{student.admission_number}</td>
                     <td className="py-4 px-6 font-bold text-slate-900 group-hover:text-primary transition-colors">{student.student_name}</td>
                     <td className="py-4 px-6 font-medium text-slate-450">{student.father_name}</td>
-                    <td className="py-4 px-6 font-semibold text-slate-500">
-                      {new Date(student.date_of_birth).toLocaleDateString()}
-                    </td>
                     <td className="py-4 px-6">
                       <span className="px-2.5 py-0.5 bg-blue-50 text-primary rounded-lg text-xs font-bold border border-blue-100/30">
                         {t('class')} {student.class}
@@ -303,13 +301,15 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                      {t('rollNumber')} <span className="text-red-500">*</span>
+                      {language === 'te' ? 'అడ్మిషన్ నంబర్' : 'Admission Number'} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       required
-                      value={formData.roll_number}
-                      onChange={(e) => setFormData({ ...formData, roll_number: e.target.value })}
+                      maxLength={4}
+                      placeholder="e.g. 7001"
+                      value={formData.admission_number}
+                      onChange={(e) => setFormData({ ...formData, admission_number: e.target.value.replace(/\D/g, '') })}
                       className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
                     />
                   </div>
@@ -327,7 +327,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="sm:col-span-2 space-y-1">
                     <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                       {t('fatherName')} <span className="text-red-500">*</span>
                     </label>
@@ -336,19 +336,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ language }
                       required
                       value={formData.father_name}
                       onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
-                      className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                      {t('dob')} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.date_of_birth}
-                      onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
                       className="w-full px-4.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-primary text-sm text-slate-800 font-semibold bg-slate-50/30"
                     />
                   </div>

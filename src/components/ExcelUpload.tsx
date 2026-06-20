@@ -91,39 +91,39 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
         }
 
         const firstRow = rawJson[0];
-        const requiredFields = ["Roll Number", "Student Name", "Class", "Subject"];
+        const requiredFields = ["Admission Number", "Student Name", "Class", "Subject"];
         const missingFields = requiredFields.filter(field => !(field in firstRow));
 
         if (missingFields.length > 0) {
           throw new Error(`Missing required columns: ${missingFields.join(', ')}. Please use the template.`);
         }
 
-        // 3. Validate duplicate Roll Number + Subject in the spreadsheet
+        // 3. Validate duplicate Admission Number + Subject in the spreadsheet
         const uniqueKeys = new Set<string>();
-        const studentNamesByRoll: { [roll: string]: string } = {};
+        const studentNamesByAdmission: { [admission: string]: string } = {};
 
         for (let i = 0; i < rawJson.length; i++) {
           const row = rawJson[i];
-          const roll = String(row["Roll Number"] || '').trim();
+          const admission = String(row["Admission Number"] || '').trim();
           const name = String(row["Student Name"] || '').trim();
           const sub = String(row["Subject"] || '').trim();
 
-          if (!roll || !name || !sub) {
-            throw new Error(`Row ${i + 2}: Roll Number, Student Name, and Subject must not be blank.`);
+          if (!admission || !name || !sub) {
+            throw new Error(`Row ${i + 2}: Admission Number, Student Name, and Subject must not be blank.`);
           }
 
-          // Check duplicate Roll + Subject
-          const key = `${roll}-${sub}`;
+          // Check duplicate Admission + Subject
+          const key = `${admission}-${sub}`;
           if (uniqueKeys.has(key)) {
-            throw new Error(`Row ${i + 2}: Duplicate entry found in spreadsheet for Roll Number "${roll}" and Subject "${sub}".`);
+            throw new Error(`Row ${i + 2}: Duplicate entry found in spreadsheet for Admission Number "${admission}" and Subject "${sub}".`);
           }
           uniqueKeys.add(key);
 
-          // Check duplicate Roll to different Name mapping
-          if (studentNamesByRoll[roll] && studentNamesByRoll[roll].toLowerCase() !== name.toLowerCase()) {
-            throw new Error(`Row ${i + 2}: Roll Number "${roll}" is assigned to different names in this sheet: "${studentNamesByRoll[roll]}" and "${name}".`);
+          // Check duplicate Admission to different Name mapping
+          if (studentNamesByAdmission[admission] && studentNamesByAdmission[admission].toLowerCase() !== name.toLowerCase()) {
+            throw new Error(`Row ${i + 2}: Admission Number "${admission}" is assigned to different names in this sheet: "${studentNamesByAdmission[admission]}" and "${name}".`);
           }
-          studentNamesByRoll[roll] = name;
+          studentNamesByAdmission[admission] = name;
         }
 
         setUploadStep('Saving records to database...');
@@ -131,7 +131,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
         await new Promise(resolve => setTimeout(resolve, 400));
 
         const entriesToSave = rawJson.map((row, index) => {
-          const rollNumber = String(row["Roll Number"] || '').trim();
+          const admissionNumber = String(row["Admission Number"] || '').trim();
           const studentName = String(row["Student Name"] || '').trim();
           const classVal = String(row["Class"] || '').trim();
           const subjectName = String(row["Subject"] || '').trim();
@@ -146,7 +146,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
           };
 
           return {
-            rollNumber,
+            admissionNumber,
             studentName,
             classVal,
             subjectName,
@@ -205,31 +205,31 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
 
   const downloadTemplate = () => {
     const headers = [
-      "Roll Number", "Student Name", "Class", "Subject", "FA1", "FA2", "FA3", "FA4", "SA1", "SA2"
+      "Admission Number", "Student Name", "Class", "Subject", "FA1", "FA2", "FA3", "FA4", "SA1", "SA2"
     ];
     const sampleData = [
       {
-        "Roll Number": "700",
+        "Admission Number": "7001",
         "Student Name": "Arjun Konda",
         "Class": "8",
         "Subject": "Mathematics",
-        "FA1": 45,
-        "FA2": 42,
-        "FA3": 40,
-        "FA4": 46,
-        "SA1": 88,
-        "SA2": 90
+        "FA1": 15,
+        "FA2": 16,
+        "FA3": 17,
+        "FA4": 18,
+        "SA1": 78,
+        "SA2": 82
       },
       {
-        "Roll Number": "701",
+        "Admission Number": "7002",
         "Student Name": "Sai Madasu",
         "Class": "9",
         "Subject": "Physical Science",
-        "FA1": 42,
-        "FA2": 44,
+        "FA1": 14,
+        "FA2": 15,
         "FA3": "",
         "FA4": "",
-        "SA1": 85,
+        "SA1": 75,
         "SA2": ""
       }
     ];
@@ -357,7 +357,7 @@ export const ExcelUpload: React.FC<ExcelUploadProps> = ({ language }) => {
           Instructions & Spreadsheet Rules
         </h3>
         <ul className="list-disc pl-5 text-xs text-slate-500 space-y-2 leading-relaxed font-semibold">
-          <li><strong>Roll Number</strong> & <strong>Student Name</strong> must match existing records, or a new student will be automatically registered in the class list.</li>
+          <li><strong>Admission Number</strong> & <strong>Student Name</strong> must match existing records, or a new student will be automatically registered in the class list.</li>
           <li><strong>Class</strong> should be a valid class number (e.g. 6, 7, 8, 9, 10).</li>
           <li><strong>Subject</strong> should be one of the standard subjects: <em>Telugu, Hindi, English, Mathematics, Physical Science, Biological Science, Social Studies</em>.</li>
           <li><strong>Formative Assessments (FA1 - FA4)</strong> must be integers between <strong>0 and 20</strong>. Leaving columns blank marks them as pending.</li>

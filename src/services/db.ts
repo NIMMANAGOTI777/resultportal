@@ -23,21 +23,32 @@ export interface School {
 
 export interface User {
   id: string;
-  email: string;
+  email?: string;
   name: string;
-  role: 'admin' | 'teacher';
+  role: 'admin' | 'teacher' | 'student';
+  admissionNumber?: string;
 }
 
 export interface Student {
   id: string;
-  roll_number: string;
+  admission_number: string;
   student_name: string;
   father_name: string;
-  date_of_birth: string; // YYYY-MM-DD
   class: string;
   section: string;
   phone: string;
   school_id: string;
+}
+
+export interface TeacherRequest {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  qualification: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
 }
 
 export interface Subject {
@@ -92,156 +103,39 @@ const DEFAULT_SUBJECTS: Subject[] = [
   { id: "sub-social", subject_name: "Social Studies" }
 ];
 
-const CLASS_8_STUDENTS: Student[] = [
-  { id: "stud-801", roll_number: "801", student_name: "B. Jyothika", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-802", roll_number: "802", student_name: "D. Sri Laxmi", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-803", roll_number: "803", student_name: "B. Gowthami", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-804", roll_number: "804", student_name: "Ch. Charitha", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-805", roll_number: "805", student_name: "B. Yogitha", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-806", roll_number: "806", student_name: "B. Nandini", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-807", roll_number: "807", student_name: "N. Anusha", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-808", roll_number: "808", student_name: "K. Sravani", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-809", roll_number: "809", student_name: "O. Vaishnavi", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-810", roll_number: "810", student_name: "J. Shindy", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-811", roll_number: "811", student_name: "Shahiya", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-812", roll_number: "812", student_name: "B. Vikas", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-813", roll_number: "813", student_name: "B. Abinav", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-814", roll_number: "814", student_name: "N. Sai Reddy", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-815", roll_number: "815", student_name: "N. Pranith", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-816", roll_number: "816", student_name: "B. Shiva", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-817", roll_number: "817", student_name: "J. Charan Teja", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-818", roll_number: "818", student_name: "M. Ishaab", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-819", roll_number: "819", student_name: "G. Veneel", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-820", roll_number: "820", student_name: "P. Shashank", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-821", roll_number: "821", student_name: "D. Varun Teja", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-822", roll_number: "822", student_name: "K. Lokesh", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-823", roll_number: "823", student_name: "V. Karthik", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-824", roll_number: "824", student_name: "N. Vignesh", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-825", roll_number: "825", student_name: "M. Mahidher", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-826", roll_number: "826", student_name: "N. Piyush", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-827", roll_number: "827", student_name: "A. Ganesh", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-828", roll_number: "828", student_name: "M. Venkatesh", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" },
-  { id: "stud-829", roll_number: "829", student_name: "A. Jaswanth", father_name: "Parent", date_of_birth: "2012-06-01", class: "8", section: "A", phone: "", school_id: "school-zphs-1" }
-];
+const firstNames = ['Arjun', 'Sai', 'Karthik', 'Pranathi', 'Sravanthi', 'Nikhil', 'Pooja', 'Lokesh', 'Vineeth', 'Siri', 'Anusha', 'Charitha', 'Manikanta', 'Ganesh', 'Venkatesh', 'Rishwik', 'Varun', 'Tejasri', 'Akshaya', 'Bhavana'];
+const lastNames = ['Konda', 'Madasu', 'Bantu', 'Dasari', 'Jujjuri', 'Kommu', 'Nellutla', 'Allutla', 'Andem', 'Avirendla', 'Kurella', 'Pandiri', 'Nakirekanti', 'Boddu', 'Bommakanti', 'Kandlakunti', 'Nellore', 'Bairi', 'Chekka', 'Palla'];
+const classes = ['8', '9', '10'];
+const sections = ['A', 'B'];
 
-const CLASS_8_MARKS: Mark[] = [];
-CLASS_8_STUDENTS.forEach((student, idx) => {
+const DEFAULT_STUDENTS: Student[] = [];
+for (let i = 0; i < 20; i++) {
+  const admissionNumber = (7001 + i).toString();
+  const classVal = classes[i % classes.length];
+  const sectionVal = sections[i % sections.length];
+  DEFAULT_STUDENTS.push({
+    id: `stud-seeded-${admissionNumber}`,
+    admission_number: admissionNumber,
+    student_name: `${firstNames[i]} ${lastNames[i]}`,
+    father_name: `${lastNames[i]} Sr.`,
+    class: classVal,
+    section: sectionVal,
+    phone: `98765432${i.toString().padStart(2, '0')}`,
+    school_id: 'school-zphs-1'
+  });
+}
+
+const DEFAULT_MARKS: Mark[] = [];
+DEFAULT_STUDENTS.forEach((student, idx) => {
   DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
     const seed = idx * 7 + subIdx;
-    const fa1 = 12 + (seed % 9); // 12-20
-    const fa2 = 12 + ((seed + 2) % 9);
-    const fa3 = 12 + ((seed + 4) % 9);
-    const fa4 = 12 + ((seed + 6) % 9);
-    const sa1 = 55 + ((seed * 3) % 41); // 55-95
-    const sa2 = 55 + ((seed * 5) % 41);
-    CLASS_8_MARKS.push({
-      id: `m-${student.id}-${subject.id}`,
-      student_id: student.id,
-      subject_id: subject.id,
-      fa1,
-      fa2,
-      fa3,
-      fa4,
-      sa1,
-      sa2,
-      updated_at: new Date().toISOString()
-    });
-  });
-});
-
-const CLASS_9_STUDENTS: Student[] = [
-  { id: "stud-901", roll_number: "901", student_name: "Allutla Jashwanth", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20043448231", school_id: "school-zphs-1" },
-  { id: "stud-902", roll_number: "902", student_name: "Andem Ganesh", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20009510862", school_id: "school-zphs-1" },
-  { id: "stud-903", roll_number: "903", student_name: "Bandi Abhinav", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20035943704", school_id: "school-zphs-1" },
-  { id: "stud-904", roll_number: "904", student_name: "Bantu Gouthami", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20284480027", school_id: "school-zphs-1" },
-  { id: "stud-905", roll_number: "905", student_name: "Bantu Jyothika", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20066437383", school_id: "school-zphs-1" },
-  { id: "stud-906", roll_number: "906", student_name: "Boddu Nandini", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20286840073", school_id: "school-zphs-1" },
-  { id: "stud-907", roll_number: "907", student_name: "Boddu Shiva", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20248214956", school_id: "school-zphs-1" },
-  { id: "stud-908", roll_number: "908", student_name: "Boddu Vikas", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20021149874", school_id: "school-zphs-1" },
-  { id: "stud-909", roll_number: "909", student_name: "Bolkonda Yogitha", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20005827141", school_id: "school-zphs-1" },
-  { id: "stud-910", roll_number: "910", student_name: "Chithaluri Charitha", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20031236671", school_id: "school-zphs-1" },
-  { id: "stud-911", roll_number: "911", student_name: "Dasari Srilakshmi", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20011214098", school_id: "school-zphs-1" },
-  { id: "stud-912", roll_number: "912", student_name: "Dasari Vaishnavi", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20030624669", school_id: "school-zphs-1" },
-  { id: "stud-913", roll_number: "913", student_name: "Dasari Varun Tej", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20200733559", school_id: "school-zphs-1" },
-  { id: "stud-914", roll_number: "914", student_name: "Gaddamidi Vineel", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20030121162", school_id: "school-zphs-1" },
-  { id: "stud-915", roll_number: "915", student_name: "Jakkala Sindhu", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20661586021", school_id: "school-zphs-1" },
-  { id: "stud-916", roll_number: "916", student_name: "Jujjuri Charan Teja", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20531158076", school_id: "school-zphs-1" },
-  { id: "stud-917", roll_number: "917", student_name: "Koka Lokesh", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20267445366", school_id: "school-zphs-1" },
-  { id: "stud-918", roll_number: "918", student_name: "Konda Sravani", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20624586182", school_id: "school-zphs-1" },
-  { id: "stud-919", roll_number: "919", student_name: "Madasu Venkatesh", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20014304247", school_id: "school-zphs-1" },
-  { id: "stud-920", roll_number: "920", student_name: "Malleboina Issak", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20014106936", school_id: "school-zphs-1" },
-  { id: "stud-921", roll_number: "921", student_name: "Mandala Mahidhar", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20032994519", school_id: "school-zphs-1" },
-  { id: "stud-922", roll_number: "922", student_name: "Nakirekanti Anusha", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20287847771", school_id: "school-zphs-1" },
-  { id: "stud-923", roll_number: "923", student_name: "Nakirekanti Pranith", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20022664030", school_id: "school-zphs-1" },
-  { id: "stud-924", roll_number: "924", student_name: "Namireddy Sai Reddy", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20215120374", school_id: "school-zphs-1" },
-  { id: "stud-925", roll_number: "925", student_name: "Nellutla Vignesh", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20402049366", school_id: "school-zphs-1" },
-  { id: "stud-926", roll_number: "926", student_name: "Palla Sheshank", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20173926776", school_id: "school-zphs-1" },
-  { id: "stud-927", roll_number: "927", student_name: "Shaik Shahin", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20012250540", school_id: "school-zphs-1" },
-  { id: "stud-928", roll_number: "928", student_name: "Valloju Karthik", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20071880822", school_id: "school-zphs-1" },
-  { id: "stud-929", roll_number: "929", student_name: "Nukapanga Rishwik", father_name: "Parent", date_of_birth: "2011-06-01", class: "9", section: "A", phone: "20091654514", school_id: "school-zphs-1" }
-];
-
-const CLASS_9_MARKS: Mark[] = [];
-CLASS_9_STUDENTS.forEach((student, idx) => {
-  DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
-    const seed = idx * 7 + subIdx + 5;
-    const fa1 = 11 + (seed % 10); // 11-20
-    const fa2 = 11 + ((seed + 3) % 10);
-    const fa3 = 11 + ((seed + 5) % 10);
-    const fa4 = 11 + ((seed + 7) % 10);
-    const sa1 = 50 + ((seed * 4) % 46); // 50-95
-    const sa2 = 50 + ((seed * 6) % 46);
-    CLASS_9_MARKS.push({
-      id: `m-${student.id}-${subject.id}`,
-      student_id: student.id,
-      subject_id: subject.id,
-      fa1,
-      fa2,
-      fa3,
-      fa4,
-      sa1,
-      sa2,
-      updated_at: new Date().toISOString()
-    });
-  });
-});
-
-const CLASS_10_STUDENTS: Student[] = [
-  { id: "stud-1001", roll_number: "1001", student_name: "Avirendla Bindhusri", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20341624129", school_id: "school-zphs-1" },
-  { id: "stud-1002", roll_number: "1002", student_name: "Avirendla Mahalakshmi", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20096736173", school_id: "school-zphs-1" },
-  { id: "stud-1003", roll_number: "1003", student_name: "Bantu Mahalaxmi", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20012282664", school_id: "school-zphs-1" },
-  { id: "stud-1004", roll_number: "1004", student_name: "Bantu Shirisha", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20082311105", school_id: "school-zphs-1" },
-  { id: "stud-1005", roll_number: "1005", student_name: "Chithaluri Bhavana", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20102979903", school_id: "school-zphs-1" },
-  { id: "stud-1006", roll_number: "1006", student_name: "Katam Akshaya", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20056002391", school_id: "school-zphs-1" },
-  { id: "stud-1007", roll_number: "1007", student_name: "Nakka Niharika", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20531661379", school_id: "school-zphs-1" },
-  { id: "stud-1008", roll_number: "1008", student_name: "Nampally Chethana", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20316867564", school_id: "school-zphs-1" },
-  { id: "stud-1009", roll_number: "1009", student_name: "Palla Pooja", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20004005510", school_id: "school-zphs-1" },
-  { id: "stud-1010", roll_number: "1010", student_name: "Pathani Siri", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20667127504", school_id: "school-zphs-1" },
-  { id: "stud-1011", roll_number: "1011", student_name: "Yalagaboina Tejasri", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20237083500", school_id: "school-zphs-1" },
-  { id: "stud-1012", roll_number: "1012", student_name: "Bantu Jashwanth", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20143271715", school_id: "school-zphs-1" },
-  { id: "stud-1013", roll_number: "1013", student_name: "Bantu Karthik", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20039537121", school_id: "school-zphs-1" },
-  { id: "stud-1014", roll_number: "1014", student_name: "Bantu Rishi", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20006215044", school_id: "school-zphs-1" },
-  { id: "stud-1015", roll_number: "1015", student_name: "Bantu Sairam", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20207602801", school_id: "school-zphs-1" },
-  { id: "stud-1016", roll_number: "1016", student_name: "Boddu Shiva", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20009203847", school_id: "school-zphs-1" },
-  { id: "stud-1017", roll_number: "1017", student_name: "Bommakanti Manikanta", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20920763703", school_id: "school-zphs-1" },
-  { id: "stud-1018", roll_number: "1018", student_name: "Kandlakunti Rambabu", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20009698082", school_id: "school-zphs-1" },
-  { id: "stud-1019", roll_number: "1019", student_name: "Kommu Lokesh", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20176486188", school_id: "school-zphs-1" },
-  { id: "stud-1020", roll_number: "1020", student_name: "Kurella Shivamani Nagabhushanam", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20521038904", school_id: "school-zphs-1" },
-  { id: "stud-1021", roll_number: "1021", student_name: "Mandala Saikumar", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20007971283", school_id: "school-zphs-1" },
-  { id: "stud-1022", roll_number: "1022", student_name: "Pandiri Nikhil", father_name: "Parent", date_of_birth: "2010-06-01", class: "10", section: "A", phone: "20119791746", school_id: "school-zphs-1" }
-];
-
-const CLASS_10_MARKS: Mark[] = [];
-CLASS_10_STUDENTS.forEach((student, idx) => {
-  DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
-    const seed = idx * 7 + subIdx + 11;
-    const fa1 = 13 + (seed % 8); // 13-20
-    const fa2 = 13 + ((seed + 1) % 8);
+    const fa1 = 13 + ((seed + 1) % 8);
+    const fa2 = 13 + ((seed + 2) % 8);
     const fa3 = 13 + ((seed + 3) % 8);
     const fa4 = 13 + ((seed + 5) % 8);
     const sa1 = 60 + ((seed * 2) % 36); // 60-95
     const sa2 = 60 + ((seed * 4) % 36);
-    CLASS_10_MARKS.push({
+    DEFAULT_MARKS.push({
       id: `m-${student.id}-${subject.id}`,
       student_id: student.id,
       subject_id: subject.id,
@@ -255,10 +149,6 @@ CLASS_10_STUDENTS.forEach((student, idx) => {
     });
   });
 });
-
-const DEFAULT_STUDENTS: Student[] = CLASS_8_STUDENTS.concat(CLASS_9_STUDENTS).concat(CLASS_10_STUDENTS);
-
-const DEFAULT_MARKS: Mark[] = CLASS_8_MARKS.concat(CLASS_9_MARKS).concat(CLASS_10_MARKS);
 
 const DEFAULT_ACTIVITIES: ActivityLog[] = [
   { id: "act-1", text: "System initialized with Telugu & English language support", timestamp: new Date(Date.now() - 3600000 * 2).toISOString() },
@@ -351,10 +241,10 @@ export const dbService = {
         studentMarks.forEach(m => {
           let sObt = 0;
           let sMax = 0;
-          if (m.fa1 != null) { sObt += m.fa1; sMax += 50; }
-          if (m.fa2 != null) { sObt += m.fa2; sMax += 50; }
-          if (m.fa3 != null) { sObt += m.fa3; sMax += 50; }
-          if (m.fa4 != null) { sObt += m.fa4; sMax += 50; }
+          if (m.fa1 != null) { sObt += m.fa1; sMax += 20; }
+          if (m.fa2 != null) { sObt += m.fa2; sMax += 20; }
+          if (m.fa3 != null) { sObt += m.fa3; sMax += 20; }
+          if (m.fa4 != null) { sObt += m.fa4; sMax += 20; }
           if (m.sa1 != null) { sObt += m.sa1; sMax += 100; }
           if (m.sa2 != null) { sObt += m.sa2; sMax += 100; }
           totalObt += sObt;
@@ -423,7 +313,7 @@ export const dbService = {
       return userObj;
     } else {
       const teachers: User[] = JSON.parse(localStorage.getItem('zphs_teachers') || '[]');
-      const user = teachers.find(t => t.email.toLowerCase() === email.toLowerCase());
+      const user = teachers.find(t => t.email && t.email.toLowerCase() === email.toLowerCase());
       
       if (user && password === 'password') {
         sessionStorage.setItem('zphs_current_user', JSON.stringify(user));
@@ -436,8 +326,12 @@ export const dbService = {
 
   async logout(): Promise<void> {
     const user = await this.getCurrentUser();
-    const email = user ? user.email : 'unknown';
-    await this.addAuditLog(`Teacher logout: ${email}`);
+    if (user) {
+      const email = user.email || 'student-' + user.id;
+      await this.addAuditLog(`User logout: ${email}`);
+    }
+    
+    sessionStorage.removeItem('zphs_student_session');
     
     if (isSupabaseConfigured && supabase) {
       await supabase.auth.signOut();
@@ -447,6 +341,11 @@ export const dbService = {
   },
 
   async getCurrentUser(): Promise<User | null> {
+    const studentSession = sessionStorage.getItem('zphs_student_session');
+    if (studentSession) {
+      return JSON.parse(studentSession);
+    }
+
     if (isSupabaseConfigured && supabase) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session || !session.user) return null;
@@ -471,6 +370,14 @@ export const dbService = {
     }
   },
 
+  saveStudentSession(user: User): void {
+    sessionStorage.setItem('zphs_student_session', JSON.stringify(user));
+  },
+
+  clearStudentSession(): void {
+    sessionStorage.removeItem('zphs_student_session');
+  },
+
   // Students CRUD
   async getStudents(): Promise<Student[]> {
     if (isSupabaseConfigured && supabase) {
@@ -491,13 +398,13 @@ export const dbService = {
         .select()
         .single();
       if (error) throw error;
-      await this.addAuditLog(`Created student: ${data.student_name} (Roll: ${data.roll_number})`);
+      await this.addAuditLog(`Created student: ${data.student_name} (Admission: ${data.admission_number})`);
       return data;
     } else {
       const students = await this.getStudents();
       
-      if (students.some(s => s.roll_number.toLowerCase() === student.roll_number.toLowerCase())) {
-        throw new Error(`Roll number ${student.roll_number} already exists!`);
+      if (students.some(s => s.admission_number.toLowerCase() === student.admission_number.toLowerCase())) {
+        throw new Error(`Admission number ${student.admission_number} already exists!`);
       }
 
       const newStudent: Student = {
@@ -507,8 +414,8 @@ export const dbService = {
       };
       students.push(newStudent);
       localStorage.setItem('zphs_students', JSON.stringify(students));
-      await this.addActivity(`Added student: ${newStudent.student_name} (Roll: ${newStudent.roll_number})`);
-      await this.addAuditLog(`Created student (local): ${newStudent.student_name} (Roll: ${newStudent.roll_number})`);
+      await this.addActivity(`Added student: ${newStudent.student_name} (Admission: ${newStudent.admission_number})`);
+      await this.addAuditLog(`Created student (local): ${newStudent.student_name} (Admission: ${newStudent.admission_number})`);
       return newStudent;
     }
   },
@@ -522,16 +429,16 @@ export const dbService = {
         .select()
         .single();
       if (error) throw error;
-      await this.addAuditLog(`Updated student: ${data.student_name} (Roll: ${data.roll_number})`);
+      await this.addAuditLog(`Updated student: ${data.student_name} (Admission: ${data.admission_number})`);
       return data;
     } else {
       const students = await this.getStudents();
       const idx = students.findIndex(s => s.id === id);
       if (idx === -1) throw new Error("Student not found");
       
-      if (updates.roll_number && updates.roll_number !== students[idx].roll_number) {
-        if (students.some(s => s.id !== id && s.roll_number.toLowerCase() === updates.roll_number?.toLowerCase())) {
-          throw new Error(`Roll number ${updates.roll_number} already exists!`);
+      if (updates.admission_number && updates.admission_number !== students[idx].admission_number) {
+        if (students.some(s => s.id !== id && s.admission_number.toLowerCase() === updates.admission_number?.toLowerCase())) {
+          throw new Error(`Admission number ${updates.admission_number} already exists!`);
         }
       }
 
@@ -539,19 +446,19 @@ export const dbService = {
       students[idx] = updated;
       localStorage.setItem('zphs_students', JSON.stringify(students));
       await this.addActivity(`Updated student details: ${updated.student_name}`);
-      await this.addAuditLog(`Updated student (local): ${updated.student_name} (Roll: ${updated.roll_number})`);
+      await this.addAuditLog(`Updated student (local): ${updated.student_name} (Admission: ${updated.admission_number})`);
       return updated;
     }
   },
 
   async deleteStudent(id: string): Promise<void> {
     if (isSupabaseConfigured && supabase) {
-      const { data: st } = await supabase.from('students').select('student_name, roll_number').eq('id', id).maybeSingle();
+      const { data: st } = await supabase.from('students').select('student_name, admission_number').eq('id', id).maybeSingle();
       const name = st ? st.student_name : id;
-      const roll = st ? st.roll_number : '';
+      const adm = st ? st.admission_number : '';
       const { error } = await supabase.from('students').delete().eq('id', id);
       if (error) throw error;
-      await this.addAuditLog(`Deleted student: ${name} (Roll: ${roll})`);
+      await this.addAuditLog(`Deleted student: ${name} (Admission: ${adm})`);
     } else {
       const students = await this.getStudents();
       const student = students.find(s => s.id === id);
@@ -564,7 +471,7 @@ export const dbService = {
 
       if (student) {
         await this.addActivity(`Deleted student: ${student.student_name}`);
-        await this.addAuditLog(`Deleted student (local): ${student.student_name} (Roll: ${student.roll_number})`);
+        await this.addAuditLog(`Deleted student (local): ${student.student_name} (Admission: ${student.admission_number})`);
       }
     }
   },
@@ -620,9 +527,9 @@ export const dbService = {
         result = data;
       }
       
-      const { data: st } = await supabase.from('students').select('student_name, roll_number').eq('id', studentId).maybeSingle();
+      const { data: st } = await supabase.from('students').select('student_name, admission_number').eq('id', studentId).maybeSingle();
       const { data: sub } = await supabase.from('subjects').select('subject_name').eq('id', subjectId).maybeSingle();
-      await this.addAuditLog(`Updated marks for student ${st?.student_name || studentId} (Roll: ${st?.roll_number || ''}) in subject ${sub?.subject_name || subjectId}`);
+      await this.addAuditLog(`Updated marks for student ${st?.student_name || studentId} (Admission: ${st?.admission_number || ''}) in subject ${sub?.subject_name || subjectId}`);
       
       return result;
     } else {
@@ -661,14 +568,14 @@ export const dbService = {
       const subject = subjects.find(s => s.id === subjectId);
       if (student && subject) {
         await this.addActivity(`Updated marks for ${student.student_name} in ${subject.subject_name}`);
-        await this.addAuditLog(`Updated marks (local) for student: ${student.student_name} (Roll: ${student.roll_number}) in subject ${subject.subject_name}`);
+        await this.addAuditLog(`Updated marks (local) for student: ${student.student_name} (Admission: ${student.admission_number}) in subject ${subject.subject_name}`);
       }
 
       return updatedMark;
     }
   },
 
-  async bulkSaveMarks(entries: { rollNumber: string; studentName: string; classVal: string; subjectName: string; marks: Partial<Omit<Mark, 'id' | 'student_id' | 'subject_id' | 'updated_at'>> }[]): Promise<{ success: number; failed: string[] }> {
+  async bulkSaveMarks(entries: { admissionNumber: string; studentName: string; classVal: string; subjectName: string; marks: Partial<Omit<Mark, 'id' | 'student_id' | 'subject_id' | 'updated_at'>> }[]): Promise<{ success: number; failed: string[] }> {
     let successCount = 0;
     const failures: string[] = [];
     
@@ -677,14 +584,13 @@ export const dbService = {
     
     for (const entry of entries) {
       try {
-        let student = students.find(s => s.roll_number.toLowerCase() === entry.rollNumber.toLowerCase());
+        let student = students.find(s => s.admission_number === entry.admissionNumber);
         
         if (!student) {
           student = await this.addStudent({
-            roll_number: entry.rollNumber,
+            admission_number: entry.admissionNumber,
             student_name: entry.studentName,
             father_name: "Parent",
-            date_of_birth: "2011-01-01",
             class: entry.classVal,
             section: "A",
             phone: ""
@@ -723,7 +629,7 @@ export const dbService = {
         await this.saveMarks(student.id, subject.id, entry.marks);
         successCount++;
       } catch (err: any) {
-        failures.push(`Roll ${entry.rollNumber} (${entry.subjectName}): ${err.message || 'Validation error'}`);
+        failures.push(`Admission ${entry.admissionNumber} (${entry.subjectName}): ${err.message || 'Validation error'}`);
       }
     }
 
@@ -739,11 +645,11 @@ export const dbService = {
   },
 
   // Student portal lookup via secure RPC to protect student records privacy
-  async findStudentWithMarks(rollNumber: string, dob: string): Promise<any | null> {
+  async findStudentWithMarks(admissionNumber: string, studentName: string): Promise<any | null> {
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.rpc('get_student_result', {
-        roll_num: rollNumber,
-        dob_val: dob
+        admission_num: admissionNumber,
+        name_val: studentName
       });
       if (error) {
         console.error("RPC student lookup failed:", error.message);
@@ -753,7 +659,7 @@ export const dbService = {
     } else {
       const students = await this.getStudents();
       const student = students.find(
-        s => s.roll_number.toLowerCase() === rollNumber.toLowerCase() && s.date_of_birth === dob
+        s => s.admission_number === admissionNumber && s.student_name.toLowerCase() === studentName.toLowerCase()
       );
 
       if (!student) return null;
@@ -816,7 +722,7 @@ export const dbService = {
         classStudentsWithMarks.push({
           studentId: cs.id,
           studentName: cs.student_name,
-          rollNumber: cs.roll_number,
+          admissionNumber: cs.admission_number,
           class: cs.class,
           section: cs.section,
           subjects: csMarksMap
@@ -826,7 +732,7 @@ export const dbService = {
       const currentStudentWithMarks = {
         studentId: student.id,
         studentName: student.student_name,
-        rollNumber: student.roll_number,
+        admissionNumber: student.admission_number,
         class: student.class,
         section: student.section,
         subjects: studentMarksMap
@@ -875,6 +781,80 @@ export const dbService = {
       };
       logs.push(newLog);
       localStorage.setItem('zphs_activities', JSON.stringify(logs));
+    }
+  },
+
+  // Teacher Request Operations
+  async submitTeacherRequest(request: Omit<TeacherRequest, 'id' | 'status' | 'created_at'>): Promise<TeacherRequest> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('teacher_requests')
+        .insert([{ ...request, status: 'pending' }])
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } else {
+      const requests = JSON.parse(localStorage.getItem('zphs_teacher_requests') || '[]');
+      const newRequest: TeacherRequest = {
+        ...request,
+        id: 'req-' + Math.random().toString(36).substr(2, 9),
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+      requests.push(newRequest);
+      localStorage.setItem('zphs_teacher_requests', JSON.stringify(requests));
+      return newRequest;
+    }
+  },
+
+  async getTeacherRequests(): Promise<TeacherRequest[]> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('teacher_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } else {
+      return JSON.parse(localStorage.getItem('zphs_teacher_requests') || '[]');
+    }
+  },
+
+  async updateTeacherRequestStatus(id: string, status: 'approved' | 'rejected'): Promise<TeacherRequest> {
+    if (isSupabaseConfigured && supabase) {
+      const { data, error } = await supabase
+        .from('teacher_requests')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } else {
+      const requests = await this.getTeacherRequests();
+      const idx = requests.findIndex(r => r.id === id);
+      if (idx === -1) throw new Error("Request not found");
+      
+      requests[idx].status = status;
+      localStorage.setItem('zphs_teacher_requests', JSON.stringify(requests));
+
+      // Mock account creation on approval
+      if (status === 'approved') {
+        const teachers: User[] = JSON.parse(localStorage.getItem('zphs_teachers') || '[]');
+        const newTeacherEmail = requests[idx].email;
+        if (!teachers.some(t => t.email === newTeacherEmail)) {
+          teachers.push({
+            id: 'mock-t-' + Math.random().toString(36).substr(2, 9),
+            email: newTeacherEmail,
+            name: requests[idx].name,
+            role: 'teacher'
+          });
+          localStorage.setItem('zphs_teachers', JSON.stringify(teachers));
+        }
+      }
+
+      return requests[idx];
     }
   }
 };

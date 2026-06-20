@@ -8,7 +8,7 @@ import { useTranslation } from '../locales/translations';
 import type { Language } from '../locales/translations';
 import { Search, Download, Award, X, FileText } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ReportCardsProps {
@@ -76,7 +76,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     const studentWithMarksObj = {
       studentId: student.id,
       studentName: student.student_name,
-      rollNumber: student.roll_number,
+      rollNumber: student.admission_number,
       class: student.class,
       section: student.section,
       subjects: studentMarks
@@ -92,7 +92,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       return {
         studentId: cs.id,
         studentName: cs.student_name,
-        rollNumber: cs.roll_number,
+        rollNumber: cs.admission_number,
         class: cs.class,
         section: cs.section,
         subjects: csMarks
@@ -205,7 +205,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(71, 85, 105);
     doc.text("Father's Name:", 110, 71);
-    doc.text("Date of Birth:", 110, 76);
+    doc.text("Phone Number:", 110, 76);
     doc.text("Attendance:", 110, 81);
     doc.text("Class Rank / Status:", 110, 86);
 
@@ -213,7 +213,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     doc.setTextColor(15, 23, 42);
     const matchStud = students.find(s => s.id === summary.studentId);
     doc.text(matchStud ? (matchStud.father_name || "Parent Name") : "Parent Name", 142, 71);
-    doc.text(matchStud ? new Date(matchStud.date_of_birth).toLocaleDateString() : '—', 142, 76);
+    doc.text(matchStud ? (matchStud.phone || '—') : '—', 142, 76);
     doc.text(`${summary.attendance.percentage}% (${summary.attendance.presentDays}/${summary.attendance.workingDays} Days)`, 142, 81);
     doc.text(`#${summary.rank} of Class / ${summary.overallGrade !== 'F' ? 'PASSED' : 'FAILED'}`, 142, 86);
 
@@ -243,7 +243,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       ];
     });
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: tableHeaders,
       body: tableBody,
       startY: 92,
@@ -251,7 +251,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
       headStyles: { fillColor: [37, 99, 235], halign: 'center', fontSize: 8, fontStyle: 'bold' },
       bodyStyles: { fontSize: 7.5, halign: 'center' },
       columnStyles: {
-        0: { fontStyle: 'bold', halign: 'left', width: 36 },
+        0: { fontStyle: 'bold', halign: 'left', cellWidth: 36 },
         5: { fontStyle: 'bold', fillColor: [248, 250, 252] },
         8: { fontStyle: 'bold', fillColor: [240, 246, 255] },
         9: { fontStyle: 'bold' },
@@ -279,7 +279,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     const secondaryY = finalY + 22;
     
     // Attendance Table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [["Attendance Record", "Days / %"]],
       body: [
         ["Total Working Days", summary.attendance.workingDays],
@@ -297,7 +297,7 @@ export const ReportCards: React.FC<ReportCardsProps> = ({ language }) => {
     });
 
     // Co-Curricular Grade Table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [["Co-Curricular Domain", "Grade / Rating"]],
       body: [
         ["Sports & Games", summary.cocurricular.sports],
