@@ -125,18 +125,25 @@ const CLASS_8_STUDENTS: Student[] = [
 ];
 
 const CLASS_8_MARKS: Mark[] = [];
-CLASS_8_STUDENTS.forEach(student => {
-  DEFAULT_SUBJECTS.forEach(subject => {
+CLASS_8_STUDENTS.forEach((student, idx) => {
+  DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
+    const seed = idx * 7 + subIdx;
+    const fa1 = 12 + (seed % 9); // 12-20
+    const fa2 = 12 + ((seed + 2) % 9);
+    const fa3 = 12 + ((seed + 4) % 9);
+    const fa4 = 12 + ((seed + 6) % 9);
+    const sa1 = 55 + ((seed * 3) % 41); // 55-95
+    const sa2 = 55 + ((seed * 5) % 41);
     CLASS_8_MARKS.push({
       id: `m-${student.id}-${subject.id}`,
       student_id: student.id,
       subject_id: subject.id,
-      fa1: 0,
-      fa2: 0,
-      fa3: 0,
-      fa4: 0,
-      sa1: 0,
-      sa2: 0,
+      fa1,
+      fa2,
+      fa3,
+      fa4,
+      sa1,
+      sa2,
       updated_at: new Date().toISOString()
     });
   });
@@ -175,18 +182,25 @@ const CLASS_9_STUDENTS: Student[] = [
 ];
 
 const CLASS_9_MARKS: Mark[] = [];
-CLASS_9_STUDENTS.forEach(student => {
-  DEFAULT_SUBJECTS.forEach(subject => {
+CLASS_9_STUDENTS.forEach((student, idx) => {
+  DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
+    const seed = idx * 7 + subIdx + 5;
+    const fa1 = 11 + (seed % 10); // 11-20
+    const fa2 = 11 + ((seed + 3) % 10);
+    const fa3 = 11 + ((seed + 5) % 10);
+    const fa4 = 11 + ((seed + 7) % 10);
+    const sa1 = 50 + ((seed * 4) % 46); // 50-95
+    const sa2 = 50 + ((seed * 6) % 46);
     CLASS_9_MARKS.push({
       id: `m-${student.id}-${subject.id}`,
       student_id: student.id,
       subject_id: subject.id,
-      fa1: 0,
-      fa2: 0,
-      fa3: 0,
-      fa4: 0,
-      sa1: 0,
-      sa2: 0,
+      fa1,
+      fa2,
+      fa3,
+      fa4,
+      sa1,
+      sa2,
       updated_at: new Date().toISOString()
     });
   });
@@ -218,18 +232,25 @@ const CLASS_10_STUDENTS: Student[] = [
 ];
 
 const CLASS_10_MARKS: Mark[] = [];
-CLASS_10_STUDENTS.forEach(student => {
-  DEFAULT_SUBJECTS.forEach(subject => {
+CLASS_10_STUDENTS.forEach((student, idx) => {
+  DEFAULT_SUBJECTS.forEach((subject, subIdx) => {
+    const seed = idx * 7 + subIdx + 11;
+    const fa1 = 13 + (seed % 8); // 13-20
+    const fa2 = 13 + ((seed + 1) % 8);
+    const fa3 = 13 + ((seed + 3) % 8);
+    const fa4 = 13 + ((seed + 5) % 8);
+    const sa1 = 60 + ((seed * 2) % 36); // 60-95
+    const sa2 = 60 + ((seed * 4) % 36);
     CLASS_10_MARKS.push({
       id: `m-${student.id}-${subject.id}`,
       student_id: student.id,
       subject_id: subject.id,
-      fa1: 0,
-      fa2: 0,
-      fa3: 0,
-      fa4: 0,
-      sa1: 0,
-      sa2: 0,
+      fa1,
+      fa2,
+      fa3,
+      fa4,
+      sa1,
+      sa2,
       updated_at: new Date().toISOString()
     });
   });
